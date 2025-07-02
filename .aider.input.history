@@ -1,0 +1,15 @@
+
+# 2025-05-02 16:20:53.265005
++n
+
+# 2025-05-02 16:21:39.117728
++/map-refresh
+
+# 2025-05-02 16:21:54.916538
++add tailwind and daisyUI
+
+# 2025-05-02 16:22:01.339945
++n
+
+# 2025-05-02 16:23:15.160961
++we're building a website that shows a grid of the astronauts currently in space, pulled from a NASA API. create the main grid component and the individual astronaut component
