@@ -7,7 +7,8 @@
     "dev": "vite > logs/vite-dev.log 2>&1 &",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cache:clear": "rm -rf .cache/*"
   },
   "dependencies": {
     "react": "^19.0.0",

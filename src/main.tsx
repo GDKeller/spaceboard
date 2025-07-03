@@ -4,6 +4,7 @@ import './index.css'
 import './styles/theme.css'
 import './styles/animations.css'
 import './styles/tactical-overlay.css'
+import './utils/cacheDemo' // Load cache utilities for debugging
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(

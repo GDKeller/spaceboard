@@ -23,8 +23,8 @@ export const useAstronauts = () => {
     }
   };
 
-  const refetch = () => {
-    spaceService.clearCache();
+  const refetch = async () => {
+    await spaceService.clearCache();
     fetchAstronauts();
   };
 

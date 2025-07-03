@@ -1,3 +1,5 @@
+import { Orbit } from './orbit';
+
 export interface SpaceWeather {
   timestamp: string;
   solar_flux: SolarFlux;

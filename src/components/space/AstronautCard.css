@@ -129,6 +129,48 @@
   line-height: 1.2;
 }
 
+/* Career Section */
+.astronaut-career {
+  padding: var(--space-sm) 0;
+  border-top: 1px solid var(--glass-border);
+  margin-bottom: var(--space-md);
+}
+
+.career-label {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-sm);
+  letter-spacing: 0.1em;
+}
+
+.career-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+}
+
+.career-stat {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+}
+
+.stat-label {
+  font-size: 0.625rem;
+  color: var(--color-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.country-flag {
+  font-size: 1rem;
+  margin-right: var(--space-xs);
+}
+
 /* Vitals Section */
 .astronaut-vitals {
   display: grid;

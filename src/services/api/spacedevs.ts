@@ -1,5 +1,5 @@
 import { BaseApiClient } from './base';
-import { ApiResponse, Astronaut, Launch, SpaceAgency } from '../../types';
+import { ApiResponse, Astronaut, Launch } from '../../types';
 
 interface SpaceDevsAstronaut {
   id: number;

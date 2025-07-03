@@ -1,3 +1,5 @@
+import { Orbit } from './orbit';
+
 export interface Spacecraft {
   id: string;
   name: string;

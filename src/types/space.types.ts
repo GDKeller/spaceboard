@@ -12,6 +12,7 @@ export interface Astronaut {
   expeditionPatch: string;
   missionPatch: string;
   profileImageLink: string;
+  profileImageThumbnail?: string;
   socialMediaPlatforms: {
     reddit?: string;
     youtube?: string;
@@ -23,6 +24,34 @@ export interface Astronaut {
   };
   iss: boolean;
   launchVehicle: string;
+  
+  // Enhanced biographical data
+  age?: number;
+  bio?: string;
+  nationality?: string;
+  flightsCount?: number;
+  spacewalksCount?: number;
+  evaTime?: string;
+  timeInSpace?: string;
+  inSpace?: boolean;
+  
+  // Real-time status simulation
+  currentActivity?: 'sleeping' | 'working' | 'eva' | 'exercise' | 'communication' | 'meal' | 'maintenance' | 'research';
+  healthStatus?: 'nominal' | 'monitoring' | 'medical_attention';
+  lastUpdate?: string;
+  
+  // Mission data
+  currentMission?: {
+    name: string;
+    description: string;
+    startDate: number;
+    expectedDuration: number;
+    status: 'active' | 'planned' | 'completed';
+  };
+  
+  // Enhanced agency data
+  agencyType?: string;
+  agencyId?: number;
 }
 
 export interface Spacecraft {

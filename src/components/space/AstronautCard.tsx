@@ -7,11 +7,8 @@ interface AstronautCardProps {
   astronaut: Astronaut;
 }
 
-// Simulated real-time activities
-const activities = [
-  'sleeping', 'working', 'eva', 'exercise', 
-  'communication', 'meal', 'maintenance'
-] as const;
+// Simulated real-time activities for fallback
+const workActivities = ['working', 'maintenance', 'communication'] as const;
 
 const getRandomActivity = () => {
   const hour = new Date().getHours();
@@ -23,12 +20,12 @@ const getRandomActivity = () => {
   if (hour >= 18 && hour < 19) return 'meal';
   
   // Random work activities during work hours
-  const workActivities = ['working', 'maintenance', 'communication'];
   return workActivities[Math.floor(Math.random() * workActivities.length)];
 };
 
 export const AstronautCard: React.FC<AstronautCardProps> = ({ astronaut }) => {
-  const [currentActivity] = useState(getRandomActivity());
+  // Use activity from service data, fallback to local simulation
+  const [currentActivity] = useState(astronaut.currentActivity || getRandomActivity());
   const [imageError, setImageError] = useState(false);
 
   const getActivityColor = (activity: string) => {
@@ -81,10 +78,17 @@ export const AstronautCard: React.FC<AstronautCardProps> = ({ astronaut }) => {
           <h3 className="astronaut-name display-text">{astronaut.name}</h3>
           <div className="astronaut-meta">
             <span className="data-text text-primary">{astronaut.agency}</span>
-            {astronaut.country !== 'Unknown' && (
+            {astronaut.countryFlag && (
               <>
                 <span className="separator">•</span>
+                <span className="country-flag">{astronaut.countryFlag}</span>
                 <span className="data-text">{astronaut.country}</span>
+              </>
+            )}
+            {astronaut.age && (
+              <>
+                <span className="separator">•</span>
+                <span className="data-text">Age {astronaut.age}</span>
               </>
             )}
           </div>
@@ -124,6 +128,15 @@ export const AstronautCard: React.FC<AstronautCardProps> = ({ astronaut }) => {
             </span>
           </div>
         )}
+        
+        {astronaut.launchVehicle && (
+          <div className="status-row">
+            <span className="status-label data-text">VEHICLE</span>
+            <span className="status-value data-text text-primary">
+              {astronaut.launchVehicle}
+            </span>
+          </div>
+        )}
       </div>
 
       {astronaut.expeditionLong && (
@@ -131,6 +144,33 @@ export const AstronautCard: React.FC<AstronautCardProps> = ({ astronaut }) => {
           <div className="mission-label data-text">CURRENT MISSION</div>
           <div className="mission-name display-text text-primary">
             {astronaut.expeditionLong}
+          </div>
+        </div>
+      )}
+
+      {/* Career Statistics */}
+      {(astronaut.flightsCount || astronaut.spacewalksCount || astronaut.evaTime) && (
+        <div className="astronaut-career">
+          <div className="career-label data-text">CAREER STATS</div>
+          <div className="career-stats">
+            {astronaut.flightsCount && (
+              <div className="career-stat">
+                <div className="stat-value data-text text-primary">{astronaut.flightsCount}</div>
+                <div className="stat-label">FLIGHTS</div>
+              </div>
+            )}
+            {astronaut.spacewalksCount && (
+              <div className="career-stat">
+                <div className="stat-value data-text text-warning">{astronaut.spacewalksCount}</div>
+                <div className="stat-label">EVAs</div>
+              </div>
+            )}
+            {astronaut.evaTime && (
+              <div className="career-stat">
+                <div className="stat-value data-text text-success">{astronaut.evaTime}</div>
+                <div className="stat-label">EVA TIME</div>
+              </div>
+            )}
           </div>
         </div>
       )}

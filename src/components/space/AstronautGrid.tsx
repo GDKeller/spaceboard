@@ -76,6 +76,15 @@ export const AstronautGrid: React.FC = () => {
               <span className="stat-value data-text">{data.expedition?.expeditionNumber || 'N/A'}</span>
               <span className="stat-label data-text">EXPEDITION</span>
             </div>
+            <div className="stat-divider"></div>
+            <button 
+              className="refresh-button"
+              onClick={refetch}
+              title="Force refresh data"
+            >
+              <span className="refresh-icon">⟳</span>
+              <span className="data-text">REFRESH</span>
+            </button>
           </div>
         </div>
         <div className="header-decoration">
