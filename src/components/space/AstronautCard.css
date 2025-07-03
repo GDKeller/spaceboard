@@ -1,0 +1,222 @@
+/* AstronautCard Component Styles */
+
+.astronaut-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Section */
+.astronaut-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.astronaut-image-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.astronaut-image {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+.astronaut-initials {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-tertiary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--color-text-primary);
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+.status-indicator {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid var(--color-bg-surface);
+  box-shadow: 0 0 10px currentColor;
+}
+
+.astronaut-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.astronaut-name {
+  font-size: 1.25rem;
+  margin: 0 0 var(--space-xs) 0;
+  color: var(--color-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.astronaut-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.separator {
+  color: var(--color-text-dim);
+  font-size: 0.75rem;
+}
+
+/* Status Section */
+.astronaut-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: rgba(0, 212, 255, 0.03);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-md);
+}
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-label {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.1em;
+}
+
+.status-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Mission Section */
+.astronaut-mission {
+  padding: var(--space-sm) 0;
+  border-top: 1px solid var(--glass-border);
+  margin-bottom: var(--space-md);
+}
+
+.mission-label {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xs);
+  letter-spacing: 0.1em;
+}
+
+.mission-name {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+/* Vitals Section */
+.astronaut-vitals {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+  margin-top: auto;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--glass-border);
+}
+
+.vital-item {
+  text-align: center;
+}
+
+.vital-value {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+}
+
+.vital-label {
+  font-size: 0.625rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Data Stream Effect */
+.data-stream-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  overflow: hidden;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.data-stream {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.625rem;
+  line-height: 1.2;
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+}
+
+.data-stream span {
+  animation: data-stream 2s linear infinite;
+  opacity: 0;
+}
+
+/* EVA Warning State */
+.data-panel-warning .astronaut-name {
+  animation: warning-flash 2s ease-in-out infinite;
+}
+
+.data-panel-warning .status-indicator {
+  animation: pulse-glow 1s ease-in-out infinite;
+}
+
+/* Hover Effects */
+.astronaut-card:hover .astronaut-image {
+  transform: scale(1.05);
+  transition: transform var(--transition-normal);
+}
+
+.astronaut-card:hover .data-stream {
+  opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .astronaut-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .astronaut-vitals {
+    grid-template-columns: repeat(3, 1fr);
+    font-size: 0.875rem;
+  }
+  
+  .astronaut-image,
+  .astronaut-initials {
+    width: 60px;
+    height: 60px;
+  }
+}

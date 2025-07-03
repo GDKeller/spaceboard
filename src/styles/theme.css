@@ -1,0 +1,278 @@
+/* Expanse-inspired Theme Configuration */
+
+:root {
+  /* Primary Colors */
+  --color-primary: #00D4FF;        /* Cyan - main UI elements */
+  --color-secondary: #FF6B35;      /* Orange - alerts and warnings */
+  --color-tertiary: #9D4EDD;       /* Purple - special indicators */
+  
+  /* Background Colors */
+  --color-bg-space: #0A0E27;       /* Deep space blue */
+  --color-bg-surface: #1A1F3A;     /* Panel background */
+  --color-bg-overlay: #151932;     /* Darker overlay */
+  
+  /* Text Colors */
+  --color-text-primary: #E0E6ED;   /* Main text */
+  --color-text-secondary: #8B95A7; /* Secondary text */
+  --color-text-dim: #4B5563;       /* Dimmed text */
+  
+  /* Status Colors */
+  --color-success: #10B981;        /* Green - operational */
+  --color-warning: #F59E0B;        /* Amber - caution */
+  --color-danger: #EF4444;         /* Red - critical */
+  --color-info: #3B82F6;           /* Blue - information */
+  
+  /* Effects */
+  --glass-bg: rgba(26, 31, 58, 0.7);
+  --glass-border: rgba(0, 212, 255, 0.2);
+  --glow-primary: 0 0 20px rgba(0, 212, 255, 0.5);
+  --glow-secondary: 0 0 20px rgba(255, 107, 53, 0.5);
+  
+  /* Typography */
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-display: 'Rajdhani', 'Orbitron', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  
+  /* Border Radius */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Z-index layers */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-alert: 400;
+  --z-top: 500;
+}
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg-space);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Glassmorphism Effect */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+    0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Glow Effects */
+.glow-primary {
+  box-shadow: var(--glow-primary);
+}
+
+.glow-secondary {
+  box-shadow: var(--glow-secondary);
+}
+
+/* Data Text */
+.data-text {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  color: var(--color-primary);
+}
+
+/* Display Text */
+.display-text {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Scan Line Animation */
+@keyframes scan-line {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+.scan-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-primary),
+    transparent
+  );
+  animation: scan-line 8s linear infinite;
+  pointer-events: none;
+  z-index: var(--z-top);
+}
+
+/* Glitch Effect */
+@keyframes glitch {
+  0%, 100% {
+    text-shadow: 
+      -2px 0 var(--color-secondary),
+      2px 0 var(--color-primary);
+  }
+  50% {
+    text-shadow: 
+      2px 0 var(--color-secondary),
+      -2px 0 var(--color-primary);
+  }
+}
+
+.glitch {
+  animation: glitch 0.5s ease-in-out infinite alternate;
+}
+
+/* Grid Patterns */
+.orbital-grid {
+  background-image: 
+    radial-gradient(circle at 50% 50%, transparent 0%, transparent 48%, var(--glass-border) 49%, var(--glass-border) 50%, transparent 51%),
+    linear-gradient(0deg, transparent 49%, var(--glass-border) 49%, var(--glass-border) 51%, transparent 51%),
+    linear-gradient(90deg, transparent 49%, var(--glass-border) 49%, var(--glass-border) 51%, transparent 51%);
+  background-size: 100px 100px, 100px 100px, 100px 100px;
+  background-position: 0 0, 0 0, 0 0;
+  opacity: 0.15;
+}
+
+.tech-grid {
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      var(--glass-border) 2px,
+      var(--glass-border) 3px,
+      transparent 3px,
+      transparent 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      var(--glass-border) 2px,
+      var(--glass-border) 3px,
+      transparent 3px,
+      transparent 40px
+    );
+  opacity: 0.1;
+}
+
+.holographic-grid {
+  position: relative;
+  overflow: hidden;
+}
+
+.holographic-grid::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: 
+    conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      var(--color-primary) 15deg,
+      transparent 30deg,
+      transparent 150deg,
+      var(--color-primary) 165deg,
+      transparent 180deg,
+      transparent 300deg,
+      var(--color-primary) 315deg,
+      transparent 330deg
+    );
+  animation: radar-sweep 8s linear infinite;
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+.matrix-grid {
+  background-image: 
+    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: -1px -1px;
+}
+
+/* Data Stream Animation */
+@keyframes data-stream {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.data-stream {
+  animation: data-stream 2s linear infinite;
+}
+
+/* Utility Classes */
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-danger { color: var(--color-danger); }
+
+.bg-space { background-color: var(--color-bg-space); }
+.bg-surface { background-color: var(--color-bg-surface); }
+.bg-overlay { background-color: var(--color-bg-overlay); }
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-overlay);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}

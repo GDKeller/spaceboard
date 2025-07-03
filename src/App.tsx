@@ -1,28 +1,39 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
-import AstronautGrid from './components/AstronautGrid'
+import { AstronautGrid } from './components/space'
 import ErrorBoundary from './components/ErrorBoundary'
 
 function App() {
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gray-900 py-8">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-8">
-            <div className="flex justify-center items-center gap-4 mb-4">
-              <a href="https://vite.dev" target="_blank">
-                <img src={viteLogo} className="logo" alt="Vite logo" />
-              </a>
-              <a href="https://react.dev" target="_blank">
-                <img src={reactLogo} className="logo react" alt="React logo" />
-              </a>
-            </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent mb-2">SpaceBoard</h1>
-            <p className="text-gray-400">Real-time astronaut tracking dashboard</p>
+      <div className="app-container">
+        <header className="app-header glass-panel">
+          <div className="app-header-content">
+            <h1 className="app-title display-text">
+              <span className="text-primary">SPACE</span>BOARD
+            </h1>
+            <p className="app-subtitle data-text">
+              REAL-TIME ORBITAL OPERATIONS MONITOR
+            </p>
           </div>
-          
+          <div className="app-header-status">
+            <div className="status-item">
+              <span className="status-dot"></span>
+              <span className="data-text">SYSTEM ONLINE</span>
+            </div>
+          </div>
+        </header>
+        
+        <main className="app-main">
           <AstronautGrid />
+        </main>
+        
+        <div className="app-background">
+          <div className="stars"></div>
+          <div className="stars2"></div>
+          <div className="stars3"></div>
+          <div className="gradient-mesh"></div>
+          <div className="circuit-board"></div>
+          <div className="orbital-rings"></div>
         </div>
       </div>
     </ErrorBoundary>

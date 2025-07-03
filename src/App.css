@@ -1,42 +1,171 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* App Component Styles - Expanse Theme */
+
+.app-container {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--color-bg-space);
+  position: relative;
+  overflow: hidden;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Header */
+.app-header {
+  position: relative;
+  z-index: var(--z-dropdown);
+  margin: var(--space-lg);
+  padding: var(--space-lg) var(--space-xl);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
 }
 
-@keyframes logo-spin {
+.app-header-content {
+  flex: 1;
+}
+
+.app-title {
+  font-size: 2.5rem;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+}
+
+.app-subtitle {
+  margin: var(--space-xs) 0 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.15em;
+}
+
+.app-header-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--color-success);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--color-success);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Main Content */
+.app-main {
+  position: relative;
+  z-index: var(--z-base);
+  width: 100%;
+}
+
+/* Animated Background */
+.app-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Stars Animation */
+@keyframes animStar {
   from {
-    transform: rotate(0deg);
+    transform: translateY(0px);
   }
   to {
-    transform: rotate(360deg);
+    transform: translateY(-2000px);
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+.stars {
+  width: 1px;
+  height: 1px;
+  background: transparent;
+  animation: animStar 100s linear infinite;
+  box-shadow: 
+    779px 1331px #fff, 324px 42px #fff, 303px 586px #fff,
+    1312px 276px #fff, 451px 625px #fff, 521px 1931px #fff,
+    1087px 1871px #fff, 36px 1546px #fff, 132px 934px #fff,
+    1698px 901px #fff, 1418px 664px #fff, 1448px 1157px #fff,
+    1084px 232px #fff, 347px 1776px #fff, 1722px 243px #fff,
+    1629px 835px #fff, 479px 969px #fff, 1231px 960px #fff,
+    586px 384px #fff, 164px 527px #fff, 8px 646px #fff,
+    1150px 1126px #fff, 665px 1357px #fff, 1556px 1982px #fff,
+    1260px 1961px #fff, 1675px 1741px #fff, 1843px 1514px #fff,
+    718px 1628px #fff, 242px 1343px #fff, 1497px 1880px #fff,
+    1364px 230px #fff, 1739px 1302px #fff, 636px 959px #fff,
+    304px 686px #fff, 614px 751px #fff, 1935px 816px #fff,
+    1428px 60px #fff, 355px 335px #fff, 1594px 158px #fff,
+    90px 60px #fff, 1553px 162px #fff, 1239px 1825px #fff,
+    1945px 587px #fff, 405px 1464px #fff, 1722px 1679px #fff,
+    1284px 1947px #fff, 1844px 1327px #fff;
+}
+
+.stars2 {
+  width: 2px;
+  height: 2px;
+  background: transparent;
+  animation: animStar 150s linear infinite;
+  box-shadow:
+    1235px 1842px #fff, 33px 1883px #fff, 1951px 1770px #fff,
+    349px 1107px #fff, 1769px 1085px #fff, 962px 1718px #fff,
+    713px 370px #fff, 1482px 1173px #fff, 615px 655px #fff,
+    1766px 1878px #fff, 234px 1861px #fff, 782px 1811px #fff,
+    1214px 446px #fff, 1154px 1454px #fff, 701px 778px #fff,
+    975px 495px #fff, 773px 199px #fff, 591px 1923px #fff,
+    1820px 1276px #fff, 1391px 1520px #fff, 1524px 1475px #fff,
+    662px 1724px #fff, 824px 417px #fff;
+}
+
+.stars3 {
+  width: 3px;
+  height: 3px;
+  background: transparent;
+  animation: animStar 200s linear infinite;
+  box-shadow:
+    885px 1141px #fff, 1182px 970px #fff, 777px 1385px #fff,
+    1690px 822px #fff, 779px 498px #fff, 1322px 816px #fff,
+    1562px 141px #fff, 1447px 164px #fff, 984px 1905px #fff,
+    1850px 1007px #fff, 406px 137px #fff, 366px 1429px #fff,
+    1919px 364px #fff, 1339px 644px #fff, 1586px 481px #fff,
+    1639px 892px #fff, 577px 289px #fff, 139px 1043px #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-header {
+    margin: var(--space-md);
+    padding: var(--space-md);
+    text-align: center;
   }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  
+  .app-header-content {
+    text-align: center;
+  }
+  
+  .app-title {
+    font-size: 1.75rem;
+    letter-spacing: 0.1em;
+  }
+  
+  .app-subtitle {
+    font-size: 0.75rem;
+  }
+  
+  .app-header-status {
+    justify-content: center;
+    width: 100%;
+  }
 }
