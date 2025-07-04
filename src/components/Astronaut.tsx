@@ -1,5 +1,6 @@
 import React from 'react';
 import { Astronaut as AstronautType } from '../types/space.types';
+import { useCachedImage } from '../hooks/useCachedImage';
 import MagicCard from './MagicCard';
 
 interface AstronautProps {
@@ -7,13 +8,17 @@ interface AstronautProps {
 }
 
 const Astronaut: React.FC<AstronautProps> = ({ astronaut }) => {
+  const cachedImage = useCachedImage(astronaut.profileImageLink || '', {
+    metadata: { astronautName: astronaut.name, type: 'profile' }
+  });
+
   return (
     <MagicCard>
       <div className="space-y-4">
         <div className="flex items-center gap-4">
-          {astronaut.profileImageLink ? (
+          {cachedImage.src && !cachedImage.error ? (
             <img 
-              src={astronaut.profileImageLink} 
+              src={cachedImage.src} 
               alt={astronaut.name}
               className="w-14 h-14 rounded-full object-cover shadow-lg ring-2 ring-purple-500/50"
               onError={(e) => {

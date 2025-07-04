@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Astronaut } from '../../types/space.types';
 import { DataPanel } from '../core/DataPanel';
+import { useCachedImage } from '../../hooks/useCachedImage';
 import './AstronautCard.css';
 
 interface AstronautCardProps {
@@ -27,6 +28,11 @@ export const AstronautCard: React.FC<AstronautCardProps> = ({ astronaut }) => {
   // Use activity from service data, fallback to local simulation
   const [currentActivity] = useState(astronaut.currentActivity || getRandomActivity());
   const [imageError, setImageError] = useState(false);
+  
+  // Use cached image hook to handle blob URL recreation
+  const cachedImage = useCachedImage(astronaut.profileImageLink || '', {
+    metadata: { astronautName: astronaut.name, type: 'profile' }
+  });
 
   const getActivityColor = (activity: string) => {
     switch (activity) {
@@ -56,9 +62,9 @@ export const AstronautCard: React.FC<AstronautCardProps> = ({ astronaut }) => {
     >
       <div className="astronaut-header">
         <div className="astronaut-image-container">
-          {!imageError && astronaut.profileImageLink ? (
+          {!imageError && cachedImage.src && !cachedImage.error ? (
             <img 
-              src={astronaut.profileImageLink} 
+              src={cachedImage.src} 
               alt={astronaut.name}
               className="astronaut-image"
               onError={() => setImageError(true)}

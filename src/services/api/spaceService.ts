@@ -1,6 +1,7 @@
 import { SpaceData, SpacecraftData, ApiError } from '../../types/space.types';
 import { launchLibraryService } from './launchLibraryService';
-import { astronautCache } from '../cache/browserCache';
+import { cacheManager } from '../cache/cacheManager';
+import { CACHE_CONFIG } from '../../config/cache.config';
 
 const OPEN_NOTIFY_URL = '/api/astros.json';
 
@@ -100,8 +101,27 @@ class SpaceService {
     }
   }
 
-  async getAstronauts(): Promise<SpaceData> {
-    const cacheKey = 'astronaut-data-enriched';
+  async getAstronauts(forceRefresh: boolean = false): Promise<SpaceData> {
+    const cacheKey = CACHE_CONFIG.CACHE_KEYS.ASTRONAUT_DATA;
+    
+    // Check if we need to force refresh due to stale blob URLs in cached data
+    if (!forceRefresh) {
+      try {
+        const cachedData = await cacheManager.get<SpaceData>(cacheKey);
+        if (cachedData && cachedData.astronauts) {
+          // Check if any astronaut has a blob URL (indicates stale cache)
+          const hasStaleUrls = cachedData.astronauts.some(astronaut => 
+            astronaut.profileImageLink && astronaut.profileImageLink.startsWith('blob:')
+          );
+          if (hasStaleUrls) {
+            console.log('[SpaceService] Detected stale blob URLs in cache, forcing refresh');
+            forceRefresh = true;
+          }
+        }
+      } catch (error) {
+        console.warn('[SpaceService] Error checking cached data:', error);
+      }
+    }
     
     // Define the fetcher function that will be called if cache miss
     const fetcher = async (): Promise<SpaceData> => {
@@ -116,84 +136,113 @@ class SpaceService {
       // Then fetch images for those specific astronauts
       const astronautImageMap = await launchLibraryService.getAstronautsWithImages(astronautNames);
       
-      // Merge data from both sources with enhanced mapping
-      const mergedAstronauts = openNotifyResponse.people.map((astronaut: any) => {
-        // Try to find matching astronaut data from Launch Library
-        const launchLibraryData = astronautImageMap.get(astronaut.name.toLowerCase()) || {};
-        
-        console.log('Merging data for:', astronaut.name);
-        console.log('Launch Library data found:', launchLibraryData);
-        
-        // Generate realistic activity based on current time
-        const activities = ['working', 'research', 'exercise', 'meal', 'communication', 'maintenance'];
-        const hour = new Date().getHours();
-        let currentActivity = 'working';
-        
-        if (hour >= 22 || hour <= 6) currentActivity = 'sleeping';
-        else if (hour >= 12 && hour <= 13) currentActivity = 'meal';
-        else if (hour >= 17 && hour <= 18) currentActivity = 'exercise';
-        else currentActivity = activities[Math.floor(Math.random() * activities.length)];
-        
-        // Generate mission data based on current expedition
-        const missionStartDate = new Date();
-        missionStartDate.setMonth(missionStartDate.getMonth() - 2); // Assume 2 months ago
-        
-        const expeditionNumber = this.generateExpeditionNumber();
-        const countryFlag = this.generateCountryFlag(launchLibraryData.country || launchLibraryData.nationality || 'Unknown');
-        const launchVehicle = this.generateRealisticLaunchVehicle(astronaut.craft, launchLibraryData.agency || '');
-        
-        return {
-          name: astronaut.name,
-          country: launchLibraryData.country || launchLibraryData.nationality || 'Unknown',
-          countryFlag: countryFlag,
-          agency: launchLibraryData.agency || 'Unknown',
-          position: launchLibraryData.position || 'Astronaut',
-          spaceCraft: astronaut.craft,
-          launchDate: missionStartDate.getTime(),
-          totalDaysInSpace: launchLibraryData.totalDaysInSpace || Math.floor(Math.random() * 300) + 30,
-          expeditionShort: `Exp ${expeditionNumber}`,
-          expeditionLong: `Expedition ${expeditionNumber}`,
-          expeditionPatch: '',
-          missionPatch: '',
-          profileImageLink: launchLibraryData.profileImageLink || '',
-          profileImageThumbnail: launchLibraryData.profileImageThumbnail || '',
-          socialMediaPlatforms: {
-            instagram: '',
-            twitter: '',
-            facebook: '',
-          },
-          iss: astronaut.craft === 'ISS',
-          launchVehicle: launchVehicle,
+      // Merge data from both sources with enhanced mapping and asset caching
+      const mergedAstronauts = await Promise.all(
+        openNotifyResponse.people.map(async (astronaut: any) => {
+          // Try to find matching astronaut data from Launch Library
+          const launchLibraryData = astronautImageMap.get(astronaut.name.toLowerCase()) || {};
           
-          // Enhanced biographical data from Launch Library
-          age: launchLibraryData.age,
-          bio: launchLibraryData.bio,
-          nationality: launchLibraryData.nationality || launchLibraryData.country,
-          flightsCount: launchLibraryData.flightsCount,
-          spacewalksCount: launchLibraryData.spacewalksCount,
-          evaTime: launchLibraryData.evaTime,
-          timeInSpace: launchLibraryData.timeInSpace,
-          inSpace: launchLibraryData.inSpace,
+          console.log('Merging data for:', astronaut.name);
+          console.log('Launch Library data found:', launchLibraryData);
           
-          // Real-time status simulation
-          currentActivity: currentActivity as any,
-          healthStatus: 'nominal' as any,
-          lastUpdate: new Date().toISOString(),
+          // Store original URLs - these will be processed through asset cache when needed
+          const profileImageLink = launchLibraryData.profileImageLink || '';
+          const profileImageThumbnail = launchLibraryData.profileImageThumbnail || '';
           
-          // Mission data
-          currentMission: {
-            name: `${astronaut.craft} Operations`,
-            description: `Scientific research and maintenance operations aboard the ${astronaut.craft}`,
-            startDate: missionStartDate.getTime(),
-            expectedDuration: 180, // 6 months typical
-            status: 'active' as any
-          },
+          // Preload images into cache but don't store blob URLs in data
+          if (profileImageLink) {
+            try {
+              await cacheManager.fetchAsset(profileImageLink, {
+                ttl: CACHE_CONFIG.ASSET_TTL,
+                metadata: { astronautName: astronaut.name, type: 'profile' }
+              });
+            } catch (error) {
+              console.warn(`Failed to preload profile image for ${astronaut.name}:`, error);
+            }
+          }
           
-          // Enhanced agency data
-          agencyType: launchLibraryData.agencyType,
-          agencyId: launchLibraryData.agencyId
-        };
-      });
+          if (profileImageThumbnail) {
+            try {
+              await cacheManager.fetchAsset(profileImageThumbnail, {
+                ttl: CACHE_CONFIG.ASSET_TTL,
+                metadata: { astronautName: astronaut.name, type: 'thumbnail' }
+              });
+            } catch (error) {
+              console.warn(`Failed to preload thumbnail for ${astronaut.name}:`, error);
+            }
+          }
+          
+          // Generate realistic activity based on current time
+          const activities = ['working', 'research', 'exercise', 'meal', 'communication', 'maintenance'];
+          const hour = new Date().getHours();
+          let currentActivity = 'working';
+          
+          if (hour >= 22 || hour <= 6) currentActivity = 'sleeping';
+          else if (hour >= 12 && hour <= 13) currentActivity = 'meal';
+          else if (hour >= 17 && hour <= 18) currentActivity = 'exercise';
+          else currentActivity = activities[Math.floor(Math.random() * activities.length)];
+          
+          // Generate mission data based on current expedition
+          const missionStartDate = new Date();
+          missionStartDate.setMonth(missionStartDate.getMonth() - 2); // Assume 2 months ago
+          
+          const expeditionNumber = this.generateExpeditionNumber();
+          const countryFlag = this.generateCountryFlag(launchLibraryData.country || launchLibraryData.nationality || 'Unknown');
+          const launchVehicle = this.generateRealisticLaunchVehicle(astronaut.craft, launchLibraryData.agency || '');
+          
+          return {
+            name: astronaut.name,
+            country: launchLibraryData.country || launchLibraryData.nationality || 'Unknown',
+            countryFlag: countryFlag,
+            agency: launchLibraryData.agency || 'Unknown',
+            position: launchLibraryData.position || 'Astronaut',
+            spaceCraft: astronaut.craft,
+            launchDate: missionStartDate.getTime(),
+            totalDaysInSpace: launchLibraryData.totalDaysInSpace || Math.floor(Math.random() * 300) + 30,
+            expeditionShort: `Exp ${expeditionNumber}`,
+            expeditionLong: `Expedition ${expeditionNumber}`,
+            expeditionPatch: '',
+            missionPatch: '',
+            profileImageLink,
+            profileImageThumbnail,
+            socialMediaPlatforms: {
+              instagram: '',
+              twitter: '',
+              facebook: '',
+            },
+            iss: astronaut.craft === 'ISS',
+            launchVehicle: launchVehicle,
+            
+            // Enhanced biographical data from Launch Library
+            age: launchLibraryData.age,
+            bio: launchLibraryData.bio,
+            nationality: launchLibraryData.nationality || launchLibraryData.country,
+            flightsCount: launchLibraryData.flightsCount,
+            spacewalksCount: launchLibraryData.spacewalksCount,
+            evaTime: launchLibraryData.evaTime,
+            timeInSpace: launchLibraryData.timeInSpace,
+            inSpace: launchLibraryData.inSpace,
+            
+            // Real-time status simulation
+            currentActivity: currentActivity as any,
+            healthStatus: 'nominal' as any,
+            lastUpdate: new Date().toISOString(),
+            
+            // Mission data
+            currentMission: {
+              name: `${astronaut.craft} Operations`,
+              description: `Scientific research and maintenance operations aboard the ${astronaut.craft}`,
+              startDate: missionStartDate.getTime(),
+              expectedDuration: 180, // 6 months typical
+              status: 'active' as any
+            },
+            
+            // Enhanced agency data
+            agencyType: launchLibraryData.agencyType,
+            agencyId: launchLibraryData.agencyId
+          };
+        })
+      );
       
       const currentExpedition = this.generateExpeditionNumber();
       const expeditionStart = new Date();
@@ -215,44 +264,26 @@ class SpaceService {
       const completeness = this.calculateDataCompleteness(mergedAstronauts);
       console.log(`[Data Quality] Astronaut data completeness: ${completeness}%`);
       
-      // Only cache if data is sufficiently complete (>60%)
-      if (completeness < 60) {
-        console.warn('[Data Quality] Data completeness below threshold, not caching');
-        // Don't throw error, just don't cache
-        // throw new Error('Incomplete data - below caching threshold');
-      }
-      
       return result;
     };
     
     try {
-      // Check if we have cached data first
-      const cached = await astronautCache.get<SpaceData>(cacheKey);
-      
-      if (cached !== null) {
-        // Validate cached data completeness
-        const completeness = this.calculateDataCompleteness(cached.astronauts);
-        if (completeness >= 60) {
-          console.log(`[Cache] Using cached data (${completeness}% complete)`);
-          return cached;
-        } else {
-          console.warn(`[Cache] Cached data incomplete (${completeness}%), fetching fresh`);
-          await astronautCache.delete(cacheKey);
+      // Use the new cache manager for comprehensive caching
+      const data = await cacheManager.fetchWithCache(
+        cacheKey,
+        fetcher,
+        {
+          ttl: CACHE_CONFIG.ASTRONAUT_DATA_TTL,
+          forceRefresh,
+          retries: 3,
+          timeout: 30000, // 30 seconds
+          onRetry: (attempt, retryAfter) => {
+            console.log(`[SpaceService] Retry attempt ${attempt}, waiting ${retryAfter}ms`);
+          }
         }
-      }
+      );
       
-      // Fetch fresh data
-      const freshData = await fetcher();
-      
-      // Only cache if data is complete
-      const freshCompleteness = this.calculateDataCompleteness(freshData.astronauts);
-      if (freshCompleteness >= 60) {
-        await astronautCache.set(cacheKey, freshData, {
-          ttl: 24 * 60 * 60 * 1000 // 24 hours
-        });
-      }
-      
-      return freshData;
+      return data;
     } catch (error) {
       console.error('[API] Error fetching astronauts:', error);
       const apiError: ApiError = {
@@ -276,14 +307,7 @@ class SpaceService {
   private readonly CACHE_DURATION = 2 * 60 * 1000; // 2 minutes (shorter for development)
 
   async getCachedAstronauts(forceRefresh: boolean = false): Promise<SpaceData> {
-    // Check if we should force refresh the cache
-    if (forceRefresh) {
-      console.log('[Cache] Force refresh requested, clearing cache');
-      await astronautCache.delete('astronaut-data-enriched');
-    }
-    
-    // Now use the regular getAstronauts which includes file caching
-    return this.getAstronauts();
+    return this.getAstronauts(forceRefresh);
   }
 
   async getCachedSpacecraft(): Promise<SpacecraftData> {
@@ -301,12 +325,12 @@ class SpaceService {
 
   async clearCache(): Promise<void> {
     this.cache.clear();
-    // Also clear browser cache
+    // Clear all cache layers using cache manager
     try {
-      await astronautCache.clear();
-      console.log('[Cache] Browser cache cleared');
+      await cacheManager.clearAll();
+      console.log('[Cache] All cache layers cleared');
     } catch (err) {
-      console.error('Failed to clear browser cache:', err);
+      console.error('Failed to clear cache:', err);
     }
   }
 }

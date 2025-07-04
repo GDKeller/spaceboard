@@ -1,6 +1,7 @@
 import React from 'react';
 import Astronaut from './Astronaut';
 import { useAstronauts } from '../hooks/useAstronauts';
+import { RefreshButton, RefreshStatus } from './RefreshButton';
 
 const AstronautGrid: React.FC = () => {
   const { data, isLoading, error, refetch } = useAstronauts();
@@ -42,12 +43,31 @@ const AstronautGrid: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-gray-100">
-          <span className="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-            {data.numberOfPeople}
-          </span>
-          {' '}People in Space
-        </h2>
+        <div className="flex flex-col items-center gap-4">
+          <h2 className="text-3xl font-bold text-gray-100">
+            <span className="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+              {data.numberOfPeople}
+            </span>
+            {' '}People in Space
+          </h2>
+          
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <RefreshButton
+              onRefresh={refetch}
+              isLoading={isLoading}
+              variant="secondary"
+              size="sm"
+              showStats={false}
+              lastUpdate={data.astronauts[0]?.lastUpdate}
+            />
+            
+            <RefreshStatus
+              isLoading={isLoading}
+              error={error}
+              lastUpdate={data.astronauts[0]?.lastUpdate}
+            />
+          </div>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
