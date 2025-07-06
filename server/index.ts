@@ -7,6 +7,7 @@ import { config } from './config.js';
 import { astronautRoutes } from './routes/astronauts.js';
 import { imageRoutes } from './routes/images.js';
 import { healthRoutes } from './routes/health.js';
+import { issRoutes } from './routes/iss.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -56,6 +57,7 @@ async function start() {
     await server.register(astronautRoutes, { prefix: '/api' });
     await server.register(imageRoutes, { prefix: '/api' });
     await server.register(healthRoutes, { prefix: '/api' });
+    await server.register(issRoutes, { prefix: '/api' });
 
     // Start server
     await server.listen({ 

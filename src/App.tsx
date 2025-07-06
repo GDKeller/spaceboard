@@ -1,6 +1,7 @@
 import './App.css'
 import { AstronautGrid } from './components/space'
 import ErrorBoundary from './components/ErrorBoundary'
+import ISSStatus from './components/ISSStatus'
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         </header>
         
         <main className="app-main">
+          <ISSStatus />
           <AstronautGrid />
         </main>
         
