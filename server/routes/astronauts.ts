@@ -4,6 +4,20 @@ import { externalApi } from '../services/external-api.js';
 
 const CACHE_KEY = 'astronauts:all';
 
+// Rate limit tracking for astronaut APIs
+let astronautRateLimitStats = {
+  openNotify: {
+    totalRequests: 0,
+    rateLimitHits: 0,
+    lastRateLimitTime: null as Date | null,
+  },
+  launchLibrary: {
+    totalRequests: 0,
+    rateLimitHits: 0,
+    lastRateLimitTime: null as Date | null,
+  },
+};
+
 export const astronautRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get('/astronauts', async (request, reply) => {
     try {
@@ -19,14 +33,26 @@ export const astronautRoutes: FastifyPluginAsync = async (fastify) => {
 
       console.log('[Route] Cache miss, fetching fresh data...');
       
-      // Fetch from Open Notify
-      const openNotifyData = await externalApi.getAstronautsFromOpenNotify();
+      // Fetch from Open Notify with rate limit tracking
+      const openNotifyData = await externalApi.getAstronautsFromOpenNotify((isRateLimit) => {
+        astronautRateLimitStats.openNotify.totalRequests++;
+        if (isRateLimit) {
+          astronautRateLimitStats.openNotify.rateLimitHits++;
+          astronautRateLimitStats.openNotify.lastRateLimitTime = new Date();
+        }
+      });
       
       // Extract astronaut names
       const astronautNames = openNotifyData.people.map(p => p.name);
       
-      // Fetch additional details from Launch Library
-      const detailsMap = await externalApi.getMultipleAstronautDetails(astronautNames);
+      // Fetch additional details from Launch Library with rate limit tracking
+      const detailsMap = await externalApi.getMultipleAstronautDetails(astronautNames, (isRateLimit) => {
+        astronautRateLimitStats.launchLibrary.totalRequests++;
+        if (isRateLimit) {
+          astronautRateLimitStats.launchLibrary.rateLimitHits++;
+          astronautRateLimitStats.launchLibrary.lastRateLimitTime = new Date();
+        }
+      });
       
       // Merge the data
       const enrichedAstronauts = openNotifyData.people.map(astronaut => {
@@ -104,6 +130,19 @@ export const astronautRoutes: FastifyPluginAsync = async (fastify) => {
       stats,
       currentTtl: ttl,
       hasData: astronautCache.has(CACHE_KEY),
+    });
+  });
+
+  // Rate limit stats endpoint
+  fastify.get('/astronauts/rate-limit/stats', async (request, reply) => {
+    return reply.send({
+      rateLimits: astronautRateLimitStats,
+      openNotifyRateLimitPercentage: astronautRateLimitStats.openNotify.totalRequests > 0
+        ? ((astronautRateLimitStats.openNotify.rateLimitHits / astronautRateLimitStats.openNotify.totalRequests) * 100).toFixed(2) + '%'
+        : '0%',
+      launchLibraryRateLimitPercentage: astronautRateLimitStats.launchLibrary.totalRequests > 0
+        ? ((astronautRateLimitStats.launchLibrary.rateLimitHits / astronautRateLimitStats.launchLibrary.totalRequests) * 100).toFixed(2) + '%'
+        : '0%',
     });
   });
 };

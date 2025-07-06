@@ -30,6 +30,11 @@ export const useAstronauts = () => {
 
   useEffect(() => {
     fetchAstronauts();
+    
+    // Update every 4 minutes to stay under 15 req/hour limit
+    const interval = setInterval(fetchAstronauts, 240000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   return {

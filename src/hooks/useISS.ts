@@ -50,8 +50,8 @@ export function useISS(): UseISSResult {
   useEffect(() => {
     fetchISS();
     
-    // Update every 5 seconds
-    const interval = setInterval(fetchISS, 5000);
+    // Update every 1 second for real-time tracking
+    const interval = setInterval(fetchISS, 1000);
     
     return () => clearInterval(interval);
   }, []);

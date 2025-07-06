@@ -13,7 +13,7 @@ const queue = new PQueue({
 export class ExternalApiService {
   private readonly timeout = 10000; // 10 seconds
 
-  async getAstronautsFromOpenNotify(): Promise<OpenNotifyResponse> {
+  async getAstronautsFromOpenNotify(rateLimitCallback?: (isRateLimit: boolean) => void): Promise<OpenNotifyResponse> {
     return queue.add(async () => {
       console.log('[API] Fetching from Open Notify...');
       
@@ -28,15 +28,24 @@ export class ExternalApiService {
         }).json<OpenNotifyResponse>();
 
         console.log(`[API] Open Notify returned ${response.number} astronauts`);
+        rateLimitCallback?.(false);
         return response;
       } catch (error) {
-        console.error('[API] Open Notify error:', error);
+        const statusCode = (error as any)?.response?.statusCode;
+        const isRateLimit = statusCode === 429;
+        
+        if (isRateLimit) {
+          console.warn('[RATE LIMIT] Open Notify API rate limit hit!');
+        }
+        rateLimitCallback?.(isRateLimit);
+        
+        console.error('[API] Open Notify error:', { error, statusCode });
         throw new Error(`Failed to fetch from Open Notify: ${error.message}`);
       }
     });
   }
 
-  async getAstronautDetails(name: string): Promise<LaunchLibraryAstronaut | null> {
+  async getAstronautDetails(name: string, rateLimitCallback?: (isRateLimit: boolean) => void): Promise<LaunchLibraryAstronaut | null> {
     return queue.add(async () => {
       console.log(`[API] Fetching details for ${name} from Launch Library...`);
       
@@ -53,19 +62,29 @@ export class ExternalApiService {
 
         if (response.results && response.results.length > 0) {
           console.log(`[API] Found details for ${name}`);
+          rateLimitCallback?.(false);
           return response.results[0];
         }
 
         console.log(`[API] No details found for ${name}`);
+        rateLimitCallback?.(false);
         return null;
       } catch (error) {
-        console.error(`[API] Launch Library error for ${name}:`, error);
+        const statusCode = (error as any)?.response?.statusCode;
+        const isRateLimit = statusCode === 429;
+        
+        if (isRateLimit) {
+          console.warn(`[RATE LIMIT] Launch Library API rate limit hit for ${name}!`);
+        }
+        rateLimitCallback?.(isRateLimit);
+        
+        console.error(`[API] Launch Library error for ${name}:`, { error, statusCode });
         return null; // Don't throw, just return null for graceful degradation
       }
     });
   }
 
-  async getMultipleAstronautDetails(names: string[]): Promise<Map<string, LaunchLibraryAstronaut>> {
+  async getMultipleAstronautDetails(names: string[], rateLimitCallback?: (isRateLimit: boolean) => void): Promise<Map<string, LaunchLibraryAstronaut>> {
     console.log(`[API] Fetching details for ${names.length} astronauts...`);
     
     const results = new Map<string, LaunchLibraryAstronaut>();
@@ -75,7 +94,7 @@ export class ExternalApiService {
     for (let i = 0; i < names.length; i += batchSize) {
       const batch = names.slice(i, i + batchSize);
       const batchPromises = batch.map(name => 
-        this.getAstronautDetails(name).then(details => ({ name, details }))
+        this.getAstronautDetails(name, rateLimitCallback).then(details => ({ name, details }))
       );
       
       const batchResults = await Promise.all(batchPromises);
