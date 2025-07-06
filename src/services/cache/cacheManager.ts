@@ -32,21 +32,22 @@ export class CacheManager {
   private fsCache: FilesystemCache;
   private assetCacheInstance: AssetCache;
   private browserCache: any; // Existing browser cache
+  private assetFetchPromises = new Map<string, Promise<string>>(); // Deduplicate concurrent asset fetches
   
   constructor() {
     this.fsCache = filesystemCache;
     this.assetCacheInstance = assetCache;
     this.browserCache = astronautCache;
     
-    // Schedule periodic cleanup
-    this.scheduleCleanup();
+    // Schedule periodic cleanup - disabled to prevent potential issues
+    // this.scheduleCleanup();
   }
 
   private scheduleCleanup(): void {
-    // Run cleanup every hour
-    setInterval(() => {
-      this.cleanup();
-    }, 60 * 60 * 1000);
+    // Run cleanup every hour - currently disabled
+    // setInterval(() => {
+    //   this.cleanup();
+    // }, 60 * 60 * 1000);
   }
 
   /**
@@ -164,18 +165,38 @@ export class CacheManager {
       return url; // Return original URL without caching
     }
 
-    try {
-      if (forceRefresh) {
-        await this.assetCacheInstance.delete(url);
-      }
-
-      // Always get a fresh URL - this handles blob URL invalidation properly
-      const cachedUrl = await this.assetCacheInstance.getCachedAssetUrl(url);
-      return cachedUrl;
-    } catch (error) {
-      console.warn('[CacheManager] Asset cache error:', error);
-      return url; // Fallback to original URL
+    // Check if we're already fetching this URL
+    const existingPromise = this.assetFetchPromises.get(url);
+    if (existingPromise && !forceRefresh) {
+      console.log(`[CacheManager] Reusing existing fetch promise for: ${url}`);
+      return existingPromise;
     }
+
+    // Create a new fetch promise
+    const fetchPromise = (async () => {
+      try {
+        if (forceRefresh) {
+          await this.assetCacheInstance.delete(url);
+        }
+
+        // Get cached URL - this now returns stable URLs
+        const cachedUrl = await this.assetCacheInstance.getCachedAssetUrl(url);
+        return cachedUrl;
+      } catch (error) {
+        console.warn('[CacheManager] Asset cache error:', error);
+        return url; // Fallback to original URL
+      } finally {
+        // Clean up the promise map after a short delay
+        setTimeout(() => {
+          this.assetFetchPromises.delete(url);
+        }, 100);
+      }
+    })();
+
+    // Store the promise for deduplication
+    this.assetFetchPromises.set(url, fetchPromise);
+    
+    return fetchPromise;
   }
 
   /**

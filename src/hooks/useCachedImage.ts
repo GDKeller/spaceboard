@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { cacheManager } from '../services/cache/cacheManager';
 
 export interface UseCachedImageOptions {
@@ -10,42 +10,67 @@ export const useCachedImage = (originalUrl: string, options: UseCachedImageOptio
   const [cachedUrl, setCachedUrl] = useState<string>(originalUrl);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  
+  // Use refs to track the current request and prevent race conditions
+  const currentRequestRef = useRef<string | null>(null);
+  const cachedResultsRef = useRef<Map<string, string>>(new Map());
 
   useEffect(() => {
     if (!originalUrl || originalUrl.trim() === '') {
       setCachedUrl('');
       setIsLoading(false);
+      setError(null);
+      return;
+    }
+
+    // Check if we already have a cached result for this URL
+    const existingCachedUrl = cachedResultsRef.current.get(originalUrl);
+    if (existingCachedUrl) {
+      setCachedUrl(existingCachedUrl);
+      setIsLoading(false);
+      setError(null);
+      return;
+    }
+
+    // If the originalUrl is already a blob URL or invalid, just use it as-is
+    if (originalUrl.startsWith('blob:') || (!originalUrl.startsWith('http://') && !originalUrl.startsWith('https://'))) {
+      setCachedUrl(originalUrl);
+      setIsLoading(false);
+      setError(null);
+      cachedResultsRef.current.set(originalUrl, originalUrl);
       return;
     }
 
     let isMounted = true;
+    currentRequestRef.current = originalUrl;
     setIsLoading(true);
     setError(null);
 
     const loadCachedImage = async () => {
       try {
-        // If the originalUrl is already a blob URL or invalid, just use it as-is
-        if (originalUrl.startsWith('blob:') || (!originalUrl.startsWith('http://') && !originalUrl.startsWith('https://'))) {
-          if (isMounted) {
-            setCachedUrl(originalUrl);
-            setIsLoading(false);
-          }
-          return;
-        }
+        // Store the URL we're fetching to detect race conditions
+        const requestUrl = originalUrl;
         
-        const url = await cacheManager.fetchAsset(originalUrl, {
-          metadata: options.metadata
-        });
+        // For server-proxied images, use the URL directly without client-side caching
+        // The server handles caching and we avoid the blob URL issues
+        const url = originalUrl;
         
-        if (isMounted) {
+        // Only update if this is still the current request and component is mounted
+        if (isMounted && currentRequestRef.current === requestUrl) {
           setCachedUrl(url);
           setIsLoading(false);
+          // Cache the result for this URL
+          cachedResultsRef.current.set(originalUrl, url);
         }
       } catch (err) {
-        if (isMounted) {
+        // Only update if this is still the current request and component is mounted
+        if (isMounted && currentRequestRef.current === originalUrl) {
+          const fallback = options.fallbackUrl || originalUrl;
           setError(err instanceof Error ? err : new Error('Failed to load cached image'));
-          setCachedUrl(options.fallbackUrl || originalUrl);
+          setCachedUrl(fallback);
           setIsLoading(false);
+          // Cache the fallback result
+          cachedResultsRef.current.set(originalUrl, fallback);
         }
       }
     };

@@ -53,7 +53,7 @@ export const CACHE_CONFIG = {
   
   // Logging
   LOG_LEVEL: import.meta.env.VITE_LOG_LEVEL || 'info',
-  ENABLE_CACHE_LOGGING: import.meta.env.VITE_ENABLE_CACHE_LOGGING === 'true',
+  ENABLE_CACHE_LOGGING: import.meta.env.VITE_ENABLE_CACHE_LOGGING === 'true' || true, // Temporarily enabled for debugging
 } as const;
 
 export type CacheConfig = typeof CACHE_CONFIG;

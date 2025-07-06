@@ -35,6 +35,7 @@ export class AssetCache {
   private hits = 0;
   private misses = 0;
   private assetsIndex = new Map<string, AssetEntry>();
+  private cachedUrlMap = new Map<string, string>(); // Maps original URLs to stable cached URLs
 
   constructor(private cacheDir: string = CACHE_CONFIG.ASSETS_CACHE_DIR) {
     this.ensureCacheDir();
@@ -211,7 +212,30 @@ export class AssetCache {
   private async readAsset(filename: string): Promise<string | null> {
     try {
       if (typeof window !== 'undefined') {
-        // Browser environment - always try to recreate from stored base64 data first
+        // Browser environment - check for existing valid blob URL first
+        const blobStore = JSON.parse(localStorage.getItem('asset_blob_store') || '{}');
+        const existingBlobUrl = blobStore[filename];
+        
+        // Check if we have a valid existing blob URL
+        if (existingBlobUrl) {
+          // Verify the blob URL is still valid by checking if we can fetch it
+          try {
+            const response = await fetch(existingBlobUrl, { method: 'HEAD' });
+            if (response.ok) {
+              if (CACHE_CONFIG.ENABLE_CACHE_LOGGING) {
+                console.log(`[AssetCache] Reusing existing blob URL for ${filename}`);
+              }
+              return existingBlobUrl;
+            }
+          } catch (e) {
+            // Blob URL is invalid, we'll recreate it
+            if (CACHE_CONFIG.ENABLE_CACHE_LOGGING) {
+              console.log(`[AssetCache] Existing blob URL invalid for ${filename}, recreating...`);
+            }
+          }
+        }
+        
+        // Try to recreate from stored base64 data
         try {
           const storedAsset = localStorage.getItem(`asset_data_${filename}`);
           if (storedAsset) {
@@ -228,23 +252,21 @@ export class AssetCache {
             const blob = new Blob([bytes], { type: assetData.mimeType });
             const blobUrl = URL.createObjectURL(blob);
             
-            // Update blob store with new URL
-            const blobStore = JSON.parse(localStorage.getItem('asset_blob_store') || '{}');
-            
-            // Revoke old blob URL if it exists
-            if (blobStore[filename]) {
+            // Revoke old blob URL if it exists and is different
+            if (existingBlobUrl && existingBlobUrl !== blobUrl) {
               try {
-                URL.revokeObjectURL(blobStore[filename]);
+                URL.revokeObjectURL(existingBlobUrl);
               } catch (e) {
                 // Ignore revoke errors
               }
             }
             
+            // Update blob store with new URL
             blobStore[filename] = blobUrl;
             localStorage.setItem('asset_blob_store', JSON.stringify(blobStore));
             
             if (CACHE_CONFIG.ENABLE_CACHE_LOGGING) {
-              console.log(`[AssetCache] Created fresh blob URL for ${filename}`);
+              console.log(`[AssetCache] Created new blob URL for ${filename}`);
             }
             return blobUrl;
           }
@@ -475,6 +497,7 @@ export class AssetCache {
       }
       
       this.assetsIndex.clear();
+      this.cachedUrlMap.clear(); // Clear the stable URL map
       await this.saveAssetsIndex();
       this.resetStats();
       
@@ -554,14 +577,40 @@ export class AssetCache {
       return url;
     }
     
+    // Check if we already have a stable cached URL for this resource
+    const existingCachedUrl = this.cachedUrlMap.get(url);
+    if (existingCachedUrl) {
+      // Verify it's still valid
+      try {
+        const response = await fetch(existingCachedUrl, { method: 'HEAD' });
+        if (response.ok) {
+          if (CACHE_CONFIG.ENABLE_CACHE_LOGGING) {
+            console.log(`[AssetCache] Returning stable cached URL for: ${url}`);
+          }
+          return existingCachedUrl;
+        }
+      } catch (e) {
+        // Cached URL is invalid, clear it
+        this.cachedUrlMap.delete(url);
+      }
+    }
+    
     const cachedPath = await this.get(url);
     if (cachedPath) {
+      // Store in our stable URL map
+      this.cachedUrlMap.set(url, cachedPath);
       return cachedPath;
     }
     
     // Try to cache it
     const newPath = await this.set(url);
-    return newPath || url; // Fallback to original URL
+    if (newPath) {
+      // Store in our stable URL map
+      this.cachedUrlMap.set(url, newPath);
+      return newPath;
+    }
+    
+    return url; // Fallback to original URL
   }
 }
 

@@ -1,9 +1,7 @@
 import { SpaceData, SpacecraftData, ApiError } from '../../types/space.types';
-import { launchLibraryService } from './launchLibraryService';
 import { cacheManager } from '../cache/cacheManager';
 import { CACHE_CONFIG } from '../../config/cache.config';
-
-const OPEN_NOTIFY_URL = '/api/astros.json';
+import { API_CONFIG } from '../../config/api.config';
 
 class SpaceService {
   // Validate if astronaut data is complete enough to cache
@@ -104,171 +102,60 @@ class SpaceService {
   async getAstronauts(forceRefresh: boolean = false): Promise<SpaceData> {
     const cacheKey = CACHE_CONFIG.CACHE_KEYS.ASTRONAUT_DATA;
     
-    // Check if we need to force refresh due to stale blob URLs in cached data
-    if (!forceRefresh) {
-      try {
-        const cachedData = await cacheManager.get<SpaceData>(cacheKey);
-        if (cachedData && cachedData.astronauts) {
-          // Check if any astronaut has a blob URL (indicates stale cache)
-          const hasStaleUrls = cachedData.astronauts.some(astronaut => 
-            astronaut.profileImageLink && astronaut.profileImageLink.startsWith('blob:')
-          );
-          if (hasStaleUrls) {
-            console.log('[SpaceService] Detected stale blob URLs in cache, forcing refresh');
-            forceRefresh = true;
-          }
-        }
-      } catch (error) {
-        console.warn('[SpaceService] Error checking cached data:', error);
-      }
-    }
-    
     // Define the fetcher function that will be called if cache miss
     const fetcher = async (): Promise<SpaceData> => {
-      console.log('[API] Fetching from Open Notify:', OPEN_NOTIFY_URL);
+      const astronautUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ASTRONAUTS}`;
+      console.log('[API] Fetching from server:', astronautUrl);
       
-      // First fetch from Open Notify to get current astronauts
-      const openNotifyResponse = await this.fetchWithTimeout(OPEN_NOTIFY_URL).then(res => res.json());
+      // Fetch from our server instead of external APIs
+      const response = await this.fetchWithTimeout(astronautUrl);
+      const data = await response.json();
       
-      // Extract astronaut names
-      const astronautNames = openNotifyResponse.people.map((p: any) => p.name);
-      
-      // Then fetch images for those specific astronauts
-      const astronautImageMap = await launchLibraryService.getAstronautsWithImages(astronautNames);
-      
-      // Merge data from both sources with enhanced mapping and asset caching
-      const mergedAstronauts = await Promise.all(
-        openNotifyResponse.people.map(async (astronaut: any) => {
-          // Try to find matching astronaut data from Launch Library
-          const launchLibraryData = astronautImageMap.get(astronaut.name.toLowerCase()) || {};
-          
-          console.log('Merging data for:', astronaut.name);
-          console.log('Launch Library data found:', launchLibraryData);
-          
-          // Store original URLs - these will be processed through asset cache when needed
-          const profileImageLink = launchLibraryData.profileImageLink || '';
-          const profileImageThumbnail = launchLibraryData.profileImageThumbnail || '';
-          
-          // Preload images into cache but don't store blob URLs in data
-          if (profileImageLink) {
-            try {
-              await cacheManager.fetchAsset(profileImageLink, {
-                ttl: CACHE_CONFIG.ASSET_TTL,
-                metadata: { astronautName: astronaut.name, type: 'profile' }
-              });
-            } catch (error) {
-              console.warn(`Failed to preload profile image for ${astronaut.name}:`, error);
-            }
+      // Transform server response to match our SpaceData type
+      const astronauts = data.astronauts.map((astronaut: any) => {
+        // Transform image URLs to use our proxy
+        const profileImageLink = astronaut.profileImageLink 
+          ? `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.IMAGE_PROXY}?url=${encodeURIComponent(astronaut.profileImageLink)}`
+          : '';
+        const profileImageThumbnail = astronaut.profileImageThumbnail
+          ? `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.IMAGE_PROXY}?url=${encodeURIComponent(astronaut.profileImageThumbnail)}`
+          : '';
+        
+        return {
+          ...astronaut,
+          profileImageLink,
+          profileImageThumbnail,
+          // Ensure all required fields are present
+          currentActivity: astronaut.currentActivity || 'working',
+          healthStatus: astronaut.healthStatus || 'nominal',
+          socialMediaPlatforms: astronaut.socialMediaPlatforms || {
+            instagram: '',
+            twitter: '',
+            facebook: '',
+          },
+          currentMission: astronaut.currentMission || {
+            name: `${astronaut.craft} Operations`,
+            description: `Operations aboard ${astronaut.craft}`,
+            startDate: astronaut.launchDate,
+            expectedDuration: 180,
+            status: 'active'
           }
-          
-          if (profileImageThumbnail) {
-            try {
-              await cacheManager.fetchAsset(profileImageThumbnail, {
-                ttl: CACHE_CONFIG.ASSET_TTL,
-                metadata: { astronautName: astronaut.name, type: 'thumbnail' }
-              });
-            } catch (error) {
-              console.warn(`Failed to preload thumbnail for ${astronaut.name}:`, error);
-            }
-          }
-          
-          // Generate realistic activity based on current time
-          const activities = ['working', 'research', 'exercise', 'meal', 'communication', 'maintenance'];
-          const hour = new Date().getHours();
-          let currentActivity = 'working';
-          
-          if (hour >= 22 || hour <= 6) currentActivity = 'sleeping';
-          else if (hour >= 12 && hour <= 13) currentActivity = 'meal';
-          else if (hour >= 17 && hour <= 18) currentActivity = 'exercise';
-          else currentActivity = activities[Math.floor(Math.random() * activities.length)];
-          
-          // Generate mission data based on current expedition
-          const missionStartDate = new Date();
-          missionStartDate.setMonth(missionStartDate.getMonth() - 2); // Assume 2 months ago
-          
-          const expeditionNumber = this.generateExpeditionNumber();
-          const countryFlag = this.generateCountryFlag(launchLibraryData.country || launchLibraryData.nationality || 'Unknown');
-          const launchVehicle = this.generateRealisticLaunchVehicle(astronaut.craft, launchLibraryData.agency || '');
-          
-          return {
-            name: astronaut.name,
-            country: launchLibraryData.country || launchLibraryData.nationality || 'Unknown',
-            countryFlag: countryFlag,
-            agency: launchLibraryData.agency || 'Unknown',
-            position: launchLibraryData.position || 'Astronaut',
-            spaceCraft: astronaut.craft,
-            launchDate: missionStartDate.getTime(),
-            totalDaysInSpace: launchLibraryData.totalDaysInSpace || Math.floor(Math.random() * 300) + 30,
-            expeditionShort: `Exp ${expeditionNumber}`,
-            expeditionLong: `Expedition ${expeditionNumber}`,
-            expeditionPatch: '',
-            missionPatch: '',
-            profileImageLink,
-            profileImageThumbnail,
-            socialMediaPlatforms: {
-              instagram: '',
-              twitter: '',
-              facebook: '',
-            },
-            iss: astronaut.craft === 'ISS',
-            launchVehicle: launchVehicle,
-            
-            // Enhanced biographical data from Launch Library
-            age: launchLibraryData.age,
-            bio: launchLibraryData.bio,
-            nationality: launchLibraryData.nationality || launchLibraryData.country,
-            flightsCount: launchLibraryData.flightsCount,
-            spacewalksCount: launchLibraryData.spacewalksCount,
-            evaTime: launchLibraryData.evaTime,
-            timeInSpace: launchLibraryData.timeInSpace,
-            inSpace: launchLibraryData.inSpace,
-            
-            // Real-time status simulation
-            currentActivity: currentActivity as any,
-            healthStatus: 'nominal' as any,
-            lastUpdate: new Date().toISOString(),
-            
-            // Mission data
-            currentMission: {
-              name: `${astronaut.craft} Operations`,
-              description: `Scientific research and maintenance operations aboard the ${astronaut.craft}`,
-              startDate: missionStartDate.getTime(),
-              expectedDuration: 180, // 6 months typical
-              status: 'active' as any
-            },
-            
-            // Enhanced agency data
-            agencyType: launchLibraryData.agencyType,
-            agencyId: launchLibraryData.agencyId
-          };
-        })
-      );
+        };
+      });
       
-      const currentExpedition = this.generateExpeditionNumber();
-      const expeditionStart = new Date();
-      expeditionStart.setMonth(expeditionStart.getMonth() - 2);
-      const expeditionEnd = new Date();
-      expeditionEnd.setMonth(expeditionEnd.getMonth() + 4);
-      
-      const result = {
-        numberOfPeople: openNotifyResponse.number,
+      return {
+        numberOfPeople: data.numberOfPeople,
         expedition: {
-          expeditionNumber: currentExpedition.toString(),
-          expeditionStartDate: expeditionStart.getTime(),
-          expeditionEndDate: expeditionEnd.getTime(),
+          expeditionNumber: this.generateExpeditionNumber().toString(),
+          expeditionStartDate: Date.now() - (60 * 24 * 60 * 60 * 1000), // 60 days ago
+          expeditionEndDate: Date.now() + (120 * 24 * 60 * 60 * 1000), // 120 days from now
         },
-        astronauts: mergedAstronauts,
+        astronauts,
       };
-      
-      // Check data completeness
-      const completeness = this.calculateDataCompleteness(mergedAstronauts);
-      console.log(`[Data Quality] Astronaut data completeness: ${completeness}%`);
-      
-      return result;
     };
     
     try {
-      // Use the new cache manager for comprehensive caching
+      // Use the new cache manager for client-side caching too
       const data = await cacheManager.fetchWithCache(
         cacheKey,
         fetcher,

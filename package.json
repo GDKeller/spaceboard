@@ -4,11 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite > logs/vite-dev.log 2>&1 &",
+    "dev": "vite",
+    "dev:server": "cd server && npm run dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:server\"",
     "build": "tsc -b && vite build",
+    "build:server": "cd server && npm run build",
+    "build:all": "npm run build && npm run build:server",
     "lint": "eslint .",
     "preview": "vite preview",
-    "cache:clear": "rm -rf .cache/*"
+    "cache:clear": "rm -rf .cache/*",
+    "install:all": "npm install && cd server && npm install"
   },
   "dependencies": {
     "react": "^19.0.0",
@@ -21,6 +26,7 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^8.2.2",
     "eslint": "^9.22.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
