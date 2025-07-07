@@ -83,9 +83,90 @@ const AstronautGrid: React.FC = () => {
 
   return (
     <div className="px-4 mx-auto max-w-7xl">
-      <div className="mb-12 text-center">
+      <div className="mb-12">
+        {/* Header Section */}
+        <div className="relative mb-12">
+          {/* Background decoration */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-900/20 to-transparent"></div>
+          
+          {/* Main header */}
+          <div className="relative py-8">
+            <div className="flex items-center justify-center mb-2">
+              <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent w-32"></div>
+              <div className="mx-4">
+                <div className="w-2 h-2 bg-cyan-400 rotate-45"></div>
+              </div>
+              <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent w-32"></div>
+            </div>
+            
+            <h2 className="text-3xl font-light tracking-[0.3em] text-cyan-100 text-center uppercase">
+              Orbital Personnel Manifest
+            </h2>
+            
+            <div className="flex items-center justify-center mt-2">
+              <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent w-48"></div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Stats Section */}
+        <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-8">
+          {/* Active Count */}
+          <div className="relative">
+            <div className="bg-slate-900/50 border border-cyan-800/30 p-6 backdrop-blur-sm">
+              <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-cyan-400/50"></div>
+              <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-cyan-400/50"></div>
+              <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-cyan-400/50"></div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-cyan-400/50"></div>
+              
+              <div className="text-center">
+                <div className="text-5xl font-extralight text-cyan-300 font-mono">{data.numberOfPeople}</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-cyan-600 mt-2 font-light">Active Personnel</div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Status */}
+          <div className="relative">
+            <div className="bg-slate-900/50 border border-cyan-800/30 p-6 backdrop-blur-sm">
+              <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-cyan-400/50"></div>
+              <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-cyan-400/50"></div>
+              <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-cyan-400/50"></div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-cyan-400/50"></div>
+              
+              <div className="text-center">
+                <div className="inline-flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <div className="text-lg font-light text-green-400 uppercase tracking-[0.2em]">Nominal</div>
+                </div>
+                <div className="text-xs uppercase tracking-[0.2em] text-cyan-600 font-light">System Status</div>
+                <div className="flex gap-1 mt-3 justify-center">
+                  <div className="w-12 h-0.5 bg-green-400/30"></div>
+                  <div className="w-12 h-0.5 bg-green-400"></div>
+                  <div className="w-12 h-0.5 bg-green-400/30"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Expedition */}
+          <div className="relative">
+            <div className="bg-slate-900/50 border border-cyan-800/30 p-6 backdrop-blur-sm">
+              <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-cyan-400/50"></div>
+              <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-cyan-400/50"></div>
+              <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-cyan-400/50"></div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-cyan-400/50"></div>
+              
+              <div className="text-center">
+                <div className="text-5xl font-extralight text-cyan-300 font-mono">70</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-cyan-600 mt-2 font-light">Expedition</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <div className="flex flex-col items-center gap-6">
-          <h2 className="text-3xl font-bold text-gray-100">
+          <h2 className="text-3xl font-bold text-gray-100 hidden">
             <span className="text-transparent bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text">
               {data.numberOfPeople}
             </span>
@@ -148,50 +229,56 @@ const AstronautGrid: React.FC = () => {
             <React.Fragment key={craft}>
               {/* Separator between stations */}
               {index > 0 && (
-                <div className="station-separator">
-                  <div className="station-separator-icon">
-                    <span className="text-xs font-mono text-gray-500">◆</span>
+                <div className="relative h-16 flex items-center justify-center my-8">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full h-px bg-gradient-to-r from-transparent via-cyan-800/30 to-transparent"></div>
+                  </div>
+                  <div className="relative bg-slate-950 px-4">
+                    <div className="w-1 h-1 bg-cyan-600/50 rounded-full"></div>
                   </div>
                 </div>
               )}
 
               <div 
-                className={`station-group station-${craft.toLowerCase()} relative rounded-2xl border-2 ${info.borderColor} ${info.bgColor} backdrop-blur-sm overflow-hidden transition-all duration-300 hover:shadow-2xl`}
+                className={`station-group station-${craft.toLowerCase()} relative border ${info.borderColor} bg-gradient-to-b from-slate-900/30 to-slate-950/50 backdrop-blur-sm overflow-hidden transition-all duration-300`}
                 style={{
                   '--station-color': craft === 'ISS' ? '#3b82f6' : '#ef4444',
-                  '--station-glow': info.glowColor,
-                  boxShadow: `0 0 50px ${info.glowColor}`
+                  '--station-glow': info.glowColor
                 } as React.CSSProperties}
               >
                 {/* Enhanced Station Header */}
                 <div className="station-header">
-                  <div className="absolute top-4 right-4 text-xs font-mono text-gray-500">{info.region}</div>
-                  <div className="station-title">
-                    <div className="station-logo">
-                      <span className="text-2xl font-mono font-bold">{info.code}</span>
-                    </div>
-                    <div className="station-info">
-                      <h3 className={`station-name bg-gradient-to-r ${info.gradient} bg-clip-text text-transparent`}>
-                        {info.name}
-                      </h3>
-                      <div className="text-xs font-mono text-gray-400 mb-2">{info.designation}</div>
-                      <div className="station-details">
-                        <div className="station-detail">
-                          <span className="text-xs font-mono">ALT</span>
-                          <span>{info.altitude}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <div className="w-12 h-12 bg-slate-950/50 border border-cyan-800/30 flex items-center justify-center">
+                          <span className="text-sm font-light text-cyan-400">{info.code}</span>
                         </div>
-                        <div className="station-detail">
-                          <span className="text-xs font-mono">VEL</span>
-                          <span>{info.velocity}</span>
-                        </div>
-                        <div className="station-detail">
-                          <span className="text-xs font-mono">CREW</span>
-                          <span>{astronauts.length}</span>
-                        </div>
+                        <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-cyan-400/50"></div>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-light text-cyan-100 tracking-wide">
+                          {info.name}
+                        </h3>
+                        <div className="text-xs text-cyan-700 font-light tracking-wider uppercase mt-1">{info.designation}</div>
                       </div>
                     </div>
+                    <div className="text-right">
+                      <div className="text-xs text-cyan-700 font-light uppercase tracking-wider">{info.region}</div>
+                      <div className="text-2xl font-light text-cyan-300 font-mono mt-1">{astronauts.length}</div>
+                    </div>
                   </div>
-                  <div className="mt-2 text-xs font-mono text-gray-500">{info.agencies}</div>
+                  <div className="flex items-center gap-6 mt-4 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-cyan-700 uppercase">ALT</span>
+                      <span className="text-cyan-400 font-mono">{info.altitude}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-cyan-700 uppercase">VEL</span>
+                      <span className="text-cyan-400 font-mono">{info.velocity}</span>
+                    </div>
+                    <div className="text-cyan-800 font-light">{info.agencies}</div>
+                  </div>
                 </div>
 
                 {/* Astronaut Grid */}

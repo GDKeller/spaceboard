@@ -38,6 +38,16 @@
   --z-tooltip: 1000;
 }
 
+/* Global styles for tactical UI */
+* {
+  box-sizing: border-box;
+}
+
+/* Use monospace for all data displays */
+.font-mono {
+  font-family: 'Courier New', Courier, monospace;
+}
+
 a {
   font-weight: 500;
   color: #646cff;

@@ -68,6 +68,34 @@ class SpaceService {
     return 'Soyuz MS'; // Default fallback
   }
 
+  private getRandomTaskStatus(): 'MAINTENANCE' | 'COMMUNICATION' | 'WORKING' | 'REST' {
+    const statuses: Array<'MAINTENANCE' | 'COMMUNICATION' | 'WORKING' | 'REST'> = 
+      ['MAINTENANCE', 'COMMUNICATION', 'WORKING', 'REST'];
+    return statuses[Math.floor(Math.random() * statuses.length)];
+  }
+
+  private calculateMissionDay(launchDate: number): number {
+    const launchMs = launchDate * 1000;
+    const now = Date.now();
+    return Math.floor((now - launchMs) / (1000 * 60 * 60 * 24));
+  }
+
+  private determineRole(country: string, agency: string): string {
+    if (country === 'China') return 'Taikonaut';
+    if (agency?.includes('ESA')) return 'ESA Astronaut';
+    if (agency?.includes('JAXA')) return 'JAXA Astronaut';
+    if (agency?.includes('ROSCOSMOS') || country === 'Russia') return 'Cosmonaut';
+    return 'Astronaut';
+  }
+
+  private generateVitals(): { o2Sat: number; bpm: number; temp: number } {
+    return {
+      o2Sat: 97 + Math.floor(Math.random() * 3), // 97-99%
+      bpm: 65 + Math.floor(Math.random() * 15), // 65-80 bpm
+      temp: 36.5 + Math.round(Math.random() * 0.8 * 10) / 10 // 36.5-37.3°C
+    };
+  }
+
   private async fetchWithTimeout(url: string, timeout = 10000): Promise<Response> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -148,7 +176,12 @@ class SpaceService {
           expeditionPatch: astronaut.expeditionPatch || '',
           missionPatch: astronaut.missionPatch || '',
           iss: astronaut.craft === 'ISS',
-          launchVehicle: astronaut.launchVehicle || ''
+          launchVehicle: astronaut.launchVehicle || '',
+          // Add tactical display fields
+          taskStatus: this.getRandomTaskStatus(),
+          missionDay: this.calculateMissionDay(astronaut.launchDate),
+          role: this.determineRole(astronaut.country, astronaut.agency),
+          vitals: this.generateVitals()
         };
       });
       

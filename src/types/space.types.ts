@@ -53,6 +53,16 @@ export interface Astronaut {
   // Enhanced agency data
   agencyType?: string;
   agencyId?: number;
+  
+  // Tactical display fields
+  role?: string;
+  missionDay?: number;
+  taskStatus?: 'MAINTENANCE' | 'COMMUNICATION' | 'WORKING' | 'REST';
+  vitals?: {
+    o2Sat: number;
+    bpm: number;
+    temp: number;
+  };
 }
 
 export interface Spacecraft {
