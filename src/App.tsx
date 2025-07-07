@@ -36,6 +36,7 @@ function App() {
           <div className="gradient-mesh"></div>
           <div className="circuit-board"></div>
           <div className="orbital-rings"></div>
+          <div className="data-flow-grid"></div>
         </div>
       </div>
     </ErrorBoundary>

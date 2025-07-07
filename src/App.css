@@ -64,7 +64,7 @@
 /* Main Content */
 .app-main {
   position: relative;
-  z-index: var(--z-base);
+  z-index: 2;
   width: 100%;
 }
 
@@ -146,10 +146,11 @@
 /* Matrix Grid & Gradient Mesh */
 .gradient-mesh {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  width: 300vw;
+  height: 300vh;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
   background: 
     radial-gradient(ellipse at 20% 30%, #1e40af 0%, transparent 40%),
     radial-gradient(ellipse at 80% 70%, #1e3a8a 0%, transparent 50%),
@@ -160,19 +161,19 @@
 
 @keyframes gradientShift {
   0%, 100% {
-    transform: scale(1) rotate(0deg);
+    transform: translate3d(-50%, -50%, 0) scale(1) rotate(0deg);
     filter: hue-rotate(0deg);
   }
   25% {
-    transform: scale(1.1) rotate(90deg);
+    transform: translate3d(-50%, -50%, 0) scale(1.1) rotate(90deg);
     filter: hue-rotate(30deg);
   }
   50% {
-    transform: scale(0.9) rotate(180deg);
+    transform: translate3d(-50%, -50%, 0) scale(0.9) rotate(180deg);
     filter: hue-rotate(-30deg);
   }
   75% {
-    transform: scale(1.05) rotate(270deg);
+    transform: translate3d(-50%, -50%, 0) scale(1.05) rotate(270deg);
     filter: hue-rotate(15deg);
   }
 }
@@ -184,12 +185,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  opacity: 0.15;
+  opacity: 0.3;
   background-image: 
     linear-gradient(#00d4ff 1px, transparent 1px),
     linear-gradient(90deg, #00d4ff 1px, transparent 1px),
-    linear-gradient(#003d5c 2px, transparent 2px),
-    linear-gradient(90deg, #003d5c 2px, transparent 2px);
+    linear-gradient(rgba(0, 212, 255, 0.5) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.5) 2px, transparent 2px);
   background-size: 
     50px 50px,
     50px 50px,
