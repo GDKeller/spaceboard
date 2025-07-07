@@ -76,7 +76,7 @@
   right: 0;
   bottom: 0;
   pointer-events: none;
-  z-index: -1;
+  z-index: 0;
 }
 
 /* Stars Animation */
@@ -143,6 +143,217 @@
     1639px 892px #fff, 577px 289px #fff, 139px 1043px #fff;
 }
 
+/* Matrix Grid & Gradient Mesh */
+.gradient-mesh {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at 20% 30%, #1e40af 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 70%, #1e3a8a 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, #1e40af 0%, transparent 70%);
+  animation: gradientShift 20s ease-in-out infinite;
+  opacity: 0.5;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(90deg);
+    filter: hue-rotate(30deg);
+  }
+  50% {
+    transform: scale(0.9) rotate(180deg);
+    filter: hue-rotate(-30deg);
+  }
+  75% {
+    transform: scale(1.05) rotate(270deg);
+    filter: hue-rotate(15deg);
+  }
+}
+
+/* Circuit Board Pattern */
+.circuit-board {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.15;
+  background-image: 
+    linear-gradient(#00d4ff 1px, transparent 1px),
+    linear-gradient(90deg, #00d4ff 1px, transparent 1px),
+    linear-gradient(#003d5c 2px, transparent 2px),
+    linear-gradient(90deg, #003d5c 2px, transparent 2px);
+  background-size: 
+    50px 50px,
+    50px 50px,
+    100px 100px,
+    100px 100px;
+  background-position: 
+    0 0,
+    0 0,
+    0 0,
+    0 0;
+  animation: circuitFlow 60s linear infinite;
+}
+
+@keyframes circuitFlow {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+/* Matrix Rain Effect Overlay */
+.circuit-board::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 212, 255, 0.03) 2px,
+      rgba(0, 212, 255, 0.03) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 212, 255, 0.03) 2px,
+      rgba(0, 212, 255, 0.03) 4px
+    );
+  animation: matrixRain 20s linear infinite;
+}
+
+@keyframes matrixRain {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100px);
+  }
+}
+
+/* Orbital Rings */
+.orbital-rings {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.orbital-rings::before,
+.orbital-rings::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.orbital-rings::before {
+  width: 100%;
+  height: 100%;
+  animation: orbit-ring 40s linear infinite;
+}
+
+.orbital-rings::after {
+  width: 80%;
+  height: 80%;
+  animation: orbit-ring 30s linear infinite reverse;
+  border-color: rgba(0, 150, 255, 0.08);
+}
+
+@keyframes orbit-ring {
+  0% {
+    transform: translate(-50%, -50%) rotateX(60deg) rotateZ(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotateX(60deg) rotateZ(360deg);
+  }
+}
+
+/* Pulse Glow Animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px var(--color-success);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--color-success), 0 0 30px var(--color-success);
+  }
+}
+
+/* Holographic Shimmer for Headers */
+.glass-panel {
+  position: relative;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  overflow: hidden;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(0, 212, 255, 0.05) 50%,
+    transparent 70%
+  );
+  animation: holographicShimmer 3s ease-in-out infinite;
+}
+
+@keyframes holographicShimmer {
+  0% {
+    transform: translateX(-100%) translateY(-100%);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%);
+  }
+}
+
+/* Enhanced Text Effects */
+.display-text {
+  text-shadow: 
+    0 0 10px rgba(0, 212, 255, 0.5),
+    0 0 20px rgba(0, 212, 255, 0.3),
+    0 0 30px rgba(0, 212, 255, 0.1);
+}
+
+.text-primary {
+  color: #00d4ff;
+  text-shadow: 0 0 20px currentColor;
+}
+
+.data-text {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.05em;
+  color: rgba(0, 212, 255, 0.8);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .app-header {
@@ -167,5 +378,10 @@
   .app-header-status {
     justify-content: center;
     width: 100%;
+  }
+  
+  .orbital-rings {
+    width: 400px;
+    height: 400px;
   }
 }

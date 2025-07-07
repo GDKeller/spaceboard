@@ -1,2 +1,2 @@
 export { AstronautCard } from './AstronautCard';
-export { AstronautGrid } from './AstronautGrid';
+export { default as AstronautGrid } from '../AstronautGrid';

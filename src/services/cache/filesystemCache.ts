@@ -109,7 +109,7 @@ export class FilesystemCache {
       } catch (error) {
         console.error('[FilesystemCache] localStorage write error:', error);
         // Handle quota exceeded error
-        if (error.name === 'QuotaExceededError') {
+        if (error instanceof Error && error.name === 'QuotaExceededError') {
           await this.cleanup();
           // Retry once after cleanup
           try {

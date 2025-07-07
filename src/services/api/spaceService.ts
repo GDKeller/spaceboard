@@ -123,6 +123,7 @@ class SpaceService {
         
         return {
           ...astronaut,
+          spaceCraft: astronaut.craft || astronaut.spaceCraft || 'Unknown', // Map craft to spaceCraft
           profileImageLink,
           profileImageThumbnail,
           // Ensure all required fields are present
@@ -139,7 +140,15 @@ class SpaceService {
             startDate: astronaut.launchDate,
             expectedDuration: 180,
             status: 'active'
-          }
+          },
+          // Ensure other required fields have defaults
+          countryFlag: astronaut.countryFlag || this.generateCountryFlag(astronaut.country),
+          expeditionShort: astronaut.expeditionShort || '',
+          expeditionLong: astronaut.expeditionLong || '',
+          expeditionPatch: astronaut.expeditionPatch || '',
+          missionPatch: astronaut.missionPatch || '',
+          iss: astronaut.craft === 'ISS',
+          launchVehicle: astronaut.launchVehicle || ''
         };
       });
       

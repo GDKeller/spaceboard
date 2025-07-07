@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { cacheManager } from '../services/cache/cacheManager';
 
 export interface UseCachedImageOptions {
   fallbackUrl?: string;

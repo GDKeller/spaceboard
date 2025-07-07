@@ -5,6 +5,7 @@ export interface Astronaut {
   agency: string;
   position: string;
   spaceCraft: string;
+  craft?: string; // Alternative field name from server
   launchDate: number; // UNIX timestamp
   totalDaysInSpace: number;
   expeditionShort: string;

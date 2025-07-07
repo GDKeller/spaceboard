@@ -41,7 +41,7 @@ const Astronaut: React.FC<AstronautProps> = ({ astronaut }) => {
         <div className="border-t border-gray-700 pt-4 space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-gray-400 font-medium">Spacecraft:</span>
-            <span className="text-gray-200 font-semibold">{astronaut.spaceCraft}</span>
+            <span className="text-gray-200 font-semibold">{astronaut.craft || astronaut.spaceCraft}</span>
           </div>
           {astronaut.country !== 'Unknown' && (
             <div className="flex justify-between items-center">
