@@ -6,18 +6,18 @@ import ISSStatus from './components/ISSStatus'
 function App() {
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-void relative overflow-hidden p-8 lg:p-12">
+      <div className="min-h-screen bg-void relative overflow-hidden p-8 lg:p-8">
         {/* Tactical background elements */}
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none z-0">
           {/* HUD grid */}
-          <div className="hud-grid"></div>
+          <div className="hud-grid z-0"></div>
           {/* Scan lines */}
-          <div className="scan-line"></div>
-          <div className="scan-line" style={{ animationDelay: '2s' }}></div>
+          <div className="scan-line z-1"></div>
+          <div className="scan-line z-1" style={{ animationDelay: '2s' }}></div>
         </div>
         
         {/* Main header */}
-        <header className="relative z-10 tactical-panel max-w-7xl mx-auto mb-4">
+        <header className="relative z-10 tactical-panel mb-4 glass">
           <div className="px-12 py-10">
             <div className="flex items-center justify-between flex-wrap gap-6">
               <div>
@@ -27,9 +27,9 @@ function App() {
                   <span className="text-expanse-light">COMMAND</span>
                 </h1>
                 <div className="flex items-center gap-8">
-                  <span className="text-label">UNSC-TYCHO-STATION</span>
-                  <span className="text-label">•</span>
                   <span className="text-label">SECTOR: SOL</span>
+                  <span className="text-label">•</span>
+                  <span className="text-label">SUBSTATION: USA, CA</span>
                   <span className="text-label">•</span>
                   <span className="text-label">CLEARANCE: LEVEL 3</span>
                 </div>
@@ -45,8 +45,8 @@ function App() {
           <div className="tactical-corners"></div>
         </header>
         
-        <main className="relative z-10 p-12">
-          <div className="max-w-7xl mx-auto space-y-4">
+        <main className="relative z-10 w-full">
+          <div className="space-y-2">
             <ISSStatus />
             <AstronautGrid />
           </div>

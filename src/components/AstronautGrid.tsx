@@ -196,13 +196,13 @@ const AstronautGrid: React.FC = () => {
                 </div>
               )}
 
-              <div className="tactical-panel-alt">
+              <div className="tactical-panel">
                 {/* Station Header */}
                 <div className="px-12 py-10 border-b border-gray-800">
                   <div className="flex items-center justify-between flex-wrap gap-6">
                     <div className="flex items-center gap-8">
                       <div className="flex flex-col">
-                        <h3 className="text-base font-tactical text-gray-200 uppercase tracking-wider">
+                        <h3 className="text-2xl font-tactical text-gray-200 uppercase tracking-wider">
                           {info.name}
                         </h3>
                         <div className="text-xs text-gray-500 mt-3">{info.designation} • {info.agencies}</div>
