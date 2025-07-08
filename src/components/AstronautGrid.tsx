@@ -10,15 +10,43 @@ const AstronautGrid: React.FC = () => {
   
   
   // Clear cache function
-  const clearCache = () => {
-    for (const key in localStorage) {
-      if (key.startsWith('spaceboard_')) {
-        console.log('Removing:', key);
-        localStorage.removeItem(key);
+  const clearCache = async () => {
+    console.log('Starting cache clear...');
+    
+    // Get all localStorage keys
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.includes('spaceboard') || key.includes('astronaut'))) {
+        keysToRemove.push(key);
       }
     }
-    console.log('Cache cleared! Refreshing...');
-    window.location.reload();
+    
+    // Remove all found keys
+    keysToRemove.forEach(key => {
+      console.log('Removing localStorage key:', key);
+      localStorage.removeItem(key);
+    });
+    
+    // Clear sessionStorage too
+    sessionStorage.clear();
+    console.log('SessionStorage cleared');
+    
+    // Clear IndexedDB if it exists
+    if ('indexedDB' in window) {
+      const databases = await indexedDB.databases?.() || [];
+      for (const db of databases) {
+        if (db.name?.includes('spaceboard') || db.name?.includes('astronaut')) {
+          console.log('Deleting IndexedDB:', db.name);
+          await indexedDB.deleteDatabase(db.name);
+        }
+      }
+    }
+    
+    console.log(`Cache clear complete! Removed ${keysToRemove.length} localStorage keys. Refreshing...`);
+    
+    // Hard reload to bypass browser cache
+    window.location.reload(true);
   };
 
   if (isLoading) {
