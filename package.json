@@ -4,18 +4,36 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "dev:server": "cd server && npm run dev &",
-    "dev:all": "concurrently \"npm run dev &\" \"npm run dev:server\"",
-    "restart": "lsof -ti:3108 | xargs kill -9 && npm run dev &",
-    "restart:all": "lsof -ti:3108 | xargs kill -9 && lsof -ti:4108 | xargs kill -9 && npm run dev:all",
+    "dev": "vite --port 3108 > ./logs/vite-dev.log 2>&1 &",
+    "log": "tail -f ./logs/vite-dev.log",
+    "log:last": "tail -n ${LINES:-20} ./logs/vite-dev.log",
+    "log:clear": "rm -f ./logs/vite-dev.log && echo 'Frontend log cleared'",
+    "kill": "(lsof -ti:3108 | xargs kill -9) 2>/dev/null || true",
+    "restart": "npm run kill && npm run dev",
+
+    "server:dev": "cd server && npm run dev",
+    "server:log": "tail -f ./logs/server-dev.log",
+    "server:log:last": "tail -n ${LINES:-20} ./logs/server-dev.log",
+    "server:log:clear": "rm -f ./logs/server-dev.log && echo 'Backend log cleared'",
+    "server:kill": "(lsof -ti:4108 | xargs kill -9) 2>/dev/null || true",
+    "server:restart": "npm run server:kill && npm run server:dev",
+
+    "all:dev": "mkdir -p logs && concurrently \"npm run dev\" \"npm run server:dev\"",
+    "all:log:last": "echo '=== Frontend (last ${LINES:-20} lines) ===' && tail -n ${LINES:-20} ./logs/vite-dev.log && echo '\n=== Backend (last ${LINES:-20} lines) ===' && tail -n ${LINES:-20} ./logs/server-dev.log",
+    "all:log:clear": "rm -f ./logs/*.log && echo 'All logs cleared'",
+    "all:kill": "npm run kill && npm run server:kill",
+    "all:restart": "npm run kill && npm run server:kill && npm run all:dev",
+
     "build": "tsc -b && vite build",
-    "build:server": "cd server && npm run build",
-    "build:all": "npm run build && npm run build:server",
+    "server:build": "cd server && npm run build",
+    "all:build": "npm run build && npm run server:build",
+
     "lint": "eslint .",
     "preview": "vite preview",
     "cache:clear": "rm -rf .cache/*",
-    "install:all": "npm install && cd server && npm install"
+    "all:install": "npm install && cd server && npm install",
+    "typecheck": "tsc --noEmit",
+    "status": "echo 'Frontend:' && (lsof -i:3108 >/dev/null 2>&1 && echo '✅ Running on port 3108' || echo '❌ Not running') && echo 'Backend:' && (lsof -i:4108 >/dev/null 2>&1 && echo '✅ Running on port 4108' || echo '❌ Not running')"    
   },
   "dependencies": {
     "react": "^19.0.0",
