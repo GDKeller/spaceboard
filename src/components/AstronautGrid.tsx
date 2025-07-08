@@ -7,6 +7,19 @@ import './AstronautGrid.css';
 
 const AstronautGrid: React.FC = () => {
   const { data, isLoading, error, refetch } = useAstronauts();
+  
+  
+  // Clear cache function
+  const clearCache = () => {
+    for (const key in localStorage) {
+      if (key.startsWith('spaceboard_')) {
+        console.log('Removing:', key);
+        localStorage.removeItem(key);
+      }
+    }
+    console.log('Cache cleared! Refreshing...');
+    window.location.reload();
+  };
 
   if (isLoading) {
     return (
@@ -122,7 +135,13 @@ const AstronautGrid: React.FC = () => {
           />
 
           {/* Refresh Controls */}
-          <div className="flex justify-center ml-auto">
+          <div className="flex justify-center ml-auto gap-4">
+            <button
+              onClick={clearCache}
+              className="btn-tactical px-10 py-3 text-sm"
+            >
+              PURGE LOCAL CACHE
+            </button>
             <button
               onClick={refetch}
               disabled={isLoading}

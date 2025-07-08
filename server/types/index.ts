@@ -40,6 +40,10 @@ export interface LaunchLibraryAstronaut {
     name: string;
     type: string;
   };
+  in_space?: boolean;
+  time_in_space?: string;
+  last_flight?: string;
+  first_flight?: string;
 }
 
 export interface CachedImage {

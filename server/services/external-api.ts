@@ -50,8 +50,9 @@ export class ExternalApiService {
       console.log(`[API] Fetching details for ${name} from Launch Library...`);
       
       try {
-        const searchUrl = `${config.apis.launchLibrary}?search=${encodeURIComponent(name)}&limit=1`;
-        const response = await got(searchUrl, {
+        // First try to find astronaut in current space crew with more details
+        const inSpaceUrl = `${config.apis.launchLibrary}?search=${encodeURIComponent(name)}&in_space=true&mode=detailed&limit=1`;
+        const response = await got(inSpaceUrl, {
           timeout: { request: this.timeout },
           responseType: 'json',
           retry: {
@@ -61,9 +62,26 @@ export class ExternalApiService {
         }).json<{ results: LaunchLibraryAstronaut[] }>();
 
         if (response.results && response.results.length > 0) {
-          console.log(`[API] Found details for ${name}`);
+          console.log(`[API] Found details for ${name} (in space)`);
           rateLimitCallback?.(false);
           return response.results[0];
+        }
+
+        // If not found in space crew, search normally
+        const searchUrl = `${config.apis.launchLibrary}?search=${encodeURIComponent(name)}&limit=1`;
+        const fallbackResponse = await got(searchUrl, {
+          timeout: { request: this.timeout },
+          responseType: 'json',
+          retry: {
+            limit: 2,
+            methods: ['GET'],
+          },
+        }).json<{ results: LaunchLibraryAstronaut[] }>();
+
+        if (fallbackResponse.results && fallbackResponse.results.length > 0) {
+          console.log(`[API] Found details for ${name}`);
+          rateLimitCallback?.(false);
+          return fallbackResponse.results[0];
         }
 
         console.log(`[API] No details found for ${name}`);
@@ -108,6 +126,36 @@ export class ExternalApiService {
     
     console.log(`[API] Retrieved details for ${results.size}/${names.length} astronauts`);
     return results;
+  }
+
+  async getCurrentISSExpedition(): Promise<any> {
+    return queue.add(async () => {
+      console.log('[API] Fetching current ISS expedition...');
+      
+      try {
+        // Get current ISS expedition
+        const expeditionUrl = `https://ll.thespacedevs.com/2.2.0/expedition/?space_station__id=4&end__isnull=true&limit=1`;
+        const response = await got(expeditionUrl, {
+          timeout: { request: this.timeout },
+          responseType: 'json',
+          retry: {
+            limit: 2,
+            methods: ['GET'],
+          },
+        }).json<{ results: any[] }>();
+
+        if (response.results && response.results.length > 0) {
+          console.log('[API] Found current ISS expedition');
+          return response.results[0];
+        }
+
+        console.log('[API] No current ISS expedition found');
+        return null;
+      } catch (error) {
+        console.error('[API] ISS expedition error:', error);
+        return null;
+      }
+    });
   }
 }
 
