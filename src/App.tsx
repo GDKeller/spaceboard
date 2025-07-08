@@ -47,7 +47,6 @@ function App() {
         
         <main className="relative z-10 w-full">
           <div className="space-y-2">
-            <ISSStatus />
             <AstronautGrid />
           </div>
         </main>
