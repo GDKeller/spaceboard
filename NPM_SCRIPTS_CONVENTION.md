@@ -81,10 +81,10 @@ Safely stop and restart services:
 ```json
 {
   "scripts": {
-    "kill": "(lsof -ti:3000 | xargs kill -9) 2>/dev/null || true",
+    "kill": "(lsof -ti:3000 -sTCP:LISTEN | xargs kill -9) 2>/dev/null || true",
     "restart": "npm run kill && npm run dev",
     
-    "server:kill": "(lsof -ti:4000 | xargs kill -9) 2>/dev/null || true",
+    "server:kill": "(lsof -ti:4000 -sTCP:LISTEN | xargs kill -9) 2>/dev/null || true",
     "server:restart": "npm run server:kill && npm run server:dev",
     
     "all:kill": "npm run kill && npm run server:kill",
@@ -94,9 +94,12 @@ Safely stop and restart services:
 ```
 
 **Safety features:**
+- `-sTCP:LISTEN` flag ensures only server processes are killed (not browser connections)
 - Parentheses contain command failures
 - `2>/dev/null` suppresses error messages
 - `|| true` ensures the command always succeeds
+
+**Important:** Always use `-sTCP:LISTEN` with `lsof` to prevent terminating client applications (browsers, API clients) that are connected to the port.
 
 ### 4. Build & Deploy
 
@@ -285,14 +288,14 @@ Copy this into your root `package.json` and adjust as needed:
     "log": "tail -f ./logs/frontend.log",
     "log:last": "tail -n ${LINES:-20} ./logs/frontend.log",
     "log:clear": "rm -f ./logs/frontend.log && echo 'Frontend log cleared'",
-    "kill": "(lsof -ti:3000 | xargs kill -9) 2>/dev/null || true",
+    "kill": "(lsof -ti:3000 -sTCP:LISTEN | xargs kill -9) 2>/dev/null || true",
     "restart": "npm run kill && npm run dev",
     
     "server:dev": "cd server && npm run dev",
     "server:log": "tail -f ./logs/backend.log",
     "server:log:last": "tail -n ${LINES:-20} ./logs/backend.log",
     "server:log:clear": "rm -f ./logs/backend.log && echo 'Backend log cleared'",
-    "server:kill": "(lsof -ti:4000 | xargs kill -9) 2>/dev/null || true",
+    "server:kill": "(lsof -ti:4000 -sTCP:LISTEN | xargs kill -9) 2>/dev/null || true",
     "server:restart": "npm run server:kill && npm run server:dev",
     
     "all:dev": "mkdir -p logs && concurrently \"npm run dev\" \"npm run server:dev\"",

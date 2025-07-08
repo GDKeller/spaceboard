@@ -8,14 +8,14 @@
     "log": "tail -f ./logs/vite-dev.log",
     "log:last": "tail -n ${LINES:-20} ./logs/vite-dev.log",
     "log:clear": "rm -f ./logs/vite-dev.log && echo 'Frontend log cleared'",
-    "kill": "(lsof -ti:3108 | xargs kill -9) 2>/dev/null || true",
+    "kill": "(lsof -ti:3108 -sTCP:LISTEN | xargs kill -9) 2>/dev/null || true",
     "restart": "npm run kill && npm run dev",
 
     "server:dev": "cd server && npm run dev",
     "server:log": "tail -f ./logs/server-dev.log",
     "server:log:last": "tail -n ${LINES:-20} ./logs/server-dev.log",
     "server:log:clear": "rm -f ./logs/server-dev.log && echo 'Backend log cleared'",
-    "server:kill": "(lsof -ti:4108 | xargs kill -9) 2>/dev/null || true",
+    "server:kill": "(lsof -ti:4108 -sTCP:LISTEN | xargs kill -9) 2>/dev/null || true",
     "server:restart": "npm run server:kill && npm run server:dev",
 
     "all:dev": "mkdir -p logs && concurrently \"npm run dev\" \"npm run server:dev\"",

@@ -75,7 +75,7 @@ class SpaceService {
   }
 
   private calculateMissionDay(launchDate: number): number {
-    const launchMs = launchDate * 1000;
+    const launchMs = launchDate; // Already in milliseconds from server
     const now = Date.now();
     return Math.floor((now - launchMs) / (1000 * 60 * 60 * 24));
   }
