@@ -1,7 +1,6 @@
 import React from 'react';
 import Astronaut from './Astronaut';
 import { useAstronauts } from '../hooks/useAstronauts';
-import { RefreshButton, RefreshStatus } from './RefreshButton';
 import './AstronautGrid.css';
 
 const AstronautGrid: React.FC = () => {
@@ -9,34 +8,43 @@ const AstronautGrid: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <div className="w-12 h-12 border-4 border-gray-700 rounded-full border-t-purple-500 animate-spin"></div>
-        <span className="text-lg text-gray-400">Loading astronauts...</span>
+      <div className="tactical-panel">
+        <div className="px-12 py-10">
+          <div className="flex items-center gap-4">
+            <span className="status-led bg-standby animate-pulse"></span>
+            <span className="text-sm text-gray-500 uppercase tracking-wider">RETRIEVING PERSONNEL MANIFEST...</span>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-lg p-6 mx-auto mt-8 text-center border border-red-800 rounded-lg bg-red-900/20">
-        <div className="mb-4">
-          <h3 className="mb-2 text-xl font-semibold text-red-400">Error loading astronaut data</h3>
-          <p className="text-gray-400">{error.message}</p>
+      <div className="tactical-panel alert-critical">
+        <div className="p-12">
+          <div className="flex items-center gap-4 mb-8">
+            <span className="status-led bg-critical"></span>
+            <span className="text-sm uppercase tracking-wider">MANIFEST RETRIEVAL FAILURE</span>
+          </div>
+          <p className="text-xs text-gray-400 font-mono mb-8">ERROR: {error.message}</p>
+          <button 
+            className="btn-tactical px-8 py-3"
+            onClick={refetch}
+          >
+            RETRY CONNECTION
+          </button>
         </div>
-        <button 
-          className="px-6 py-2 font-medium text-white transition-all duration-200 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-          onClick={refetch}
-        >
-          Retry
-        </button>
       </div>
     );
   }
 
   if (!data || data.astronauts.length === 0) {
     return (
-      <div className="py-16 text-lg text-center text-gray-400">
-        <p>No astronauts in space at the moment.</p>
+      <div className="tactical-panel">
+        <div className="px-12 py-16">
+          <p className="text-center text-sm text-gray-500 uppercase tracking-wider">NO ACTIVE PERSONNEL IN ORBIT</p>
+        </div>
       </div>
     );
   }
@@ -82,213 +90,157 @@ const AstronautGrid: React.FC = () => {
   };
 
   return (
-    <div className="px-4 mx-auto max-w-7xl">
-      <div className="mb-12">
-        {/* Header Section */}
-        <div className="relative mb-12">
-          {/* Background decoration */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-900/20 to-transparent"></div>
-          
-          {/* Main header */}
-          <div className="relative py-8">
-            <div className="flex items-center justify-center mb-2">
-              <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent w-32"></div>
-              <div className="mx-4">
-                <div className="w-2 h-2 bg-cyan-400 rotate-45"></div>
-              </div>
-              <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent w-32"></div>
-            </div>
-            
-            <h2 className="text-3xl font-light tracking-[0.3em] text-cyan-100 text-center uppercase">
-              Orbital Personnel Manifest
-            </h2>
-            
-            <div className="flex items-center justify-center mt-2">
-              <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent w-48"></div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Stats Section */}
-        <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-8">
-          {/* Active Count */}
-          <div className="relative">
-            <div className="bg-slate-900/50 border border-cyan-800/30 p-6 backdrop-blur-sm">
-              <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-cyan-400/50"></div>
-              <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-cyan-400/50"></div>
-              <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-cyan-400/50"></div>
-              <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-cyan-400/50"></div>
-              
-              <div className="text-center">
-                <div className="text-5xl font-extralight text-cyan-300 font-mono">{data.numberOfPeople}</div>
-                <div className="text-xs uppercase tracking-[0.2em] text-cyan-600 mt-2 font-light">Active Personnel</div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Status */}
-          <div className="relative">
-            <div className="bg-slate-900/50 border border-cyan-800/30 p-6 backdrop-blur-sm">
-              <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-cyan-400/50"></div>
-              <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-cyan-400/50"></div>
-              <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-cyan-400/50"></div>
-              <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-cyan-400/50"></div>
-              
-              <div className="text-center">
-                <div className="inline-flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <div className="text-lg font-light text-green-400 uppercase tracking-[0.2em]">Nominal</div>
-                </div>
-                <div className="text-xs uppercase tracking-[0.2em] text-cyan-600 font-light">System Status</div>
-                <div className="flex gap-1 mt-3 justify-center">
-                  <div className="w-12 h-0.5 bg-green-400/30"></div>
-                  <div className="w-12 h-0.5 bg-green-400"></div>
-                  <div className="w-12 h-0.5 bg-green-400/30"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Expedition */}
-          <div className="relative">
-            <div className="bg-slate-900/50 border border-cyan-800/30 p-6 backdrop-blur-sm">
-              <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-cyan-400/50"></div>
-              <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-cyan-400/50"></div>
-              <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-cyan-400/50"></div>
-              <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-cyan-400/50"></div>
-              
-              <div className="text-center">
-                <div className="text-5xl font-extralight text-cyan-300 font-mono">70</div>
-                <div className="text-xs uppercase tracking-[0.2em] text-cyan-600 mt-2 font-light">Expedition</div>
+    <div className="w-full">
+      <div className="space-y-12">
+        {/* Tactical Header */}
+        <div className="tactical-panel">
+          <div className="px-12 py-8">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <h2 className="text-sm font-tactical uppercase tracking-wider text-gray-400">
+                ORBITAL PERSONNEL MANIFEST • LIVE TRACKING
+              </h2>
+              <div className="flex items-center gap-8">
+                <span className="text-xs text-gray-600">LAST UPDATE: {new Date().toISOString().split('T')[0]}</span>
               </div>
             </div>
           </div>
         </div>
         
-        <div className="flex flex-col items-center gap-6">
-          <h2 className="text-3xl font-bold text-gray-100 hidden">
-            <span className="text-transparent bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text">
-              {data.numberOfPeople}
-            </span>
-            {' '}People in Space
-          </h2>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Active Personnel */}
+          <div className="tactical-panel">
+            <div className="px-12 py-10">
+              <div className="text-label mb-4">ACTIVE PERSONNEL</div>
+              <div className="text-5xl font-mono text-data-bright tabular-nums">
+                {data.numberOfPeople.toString().padStart(2, '0')}
+              </div>
+              <div className="text-xs text-gray-600 mt-3">IN ORBIT</div>
+            </div>
+          </div>
           
-          {/* Station Summary Cards */}
-          <div className="flex flex-wrap justify-center gap-4">
-            {Object.entries(groupedAstronauts).map(([craft, astronauts]) => {
-              const info = stationInfo[craft as keyof typeof stationInfo];
-              return (
-                <div 
-                  key={craft} 
-                  className={`flex items-center gap-3 px-4 py-2 rounded-full border ${info?.borderColor || 'border-gray-600'} ${info?.bgColor || 'bg-gray-900/50'} backdrop-blur-sm transition-all duration-200 hover:scale-105`}
-                >
-                  <span className="text-xs font-mono text-gray-400">{info?.code || 'UNK'}</span>
-                  <span className="font-medium text-gray-200">{craft}</span>
-                  <span className="px-2 py-0.5 bg-black/30 rounded-full text-sm font-bold">{astronauts.length}</span>
+          {/* Mission Status */}
+          <div className="tactical-panel">
+            <div className="px-12 py-10">
+              <div className="text-label mb-4">MISSION STATUS</div>
+              <div className="flex items-center gap-4 mt-6">
+                <span className="status-led bg-nominal animate-pulse"></span>
+                <span className="text-base text-nominal uppercase">ALL SYSTEMS GO</span>
+              </div>
+              <div className="text-xs text-gray-600 mt-3">NO ALERTS</div>
+            </div>
+          </div>
+          
+          {/* Station Count */}
+          <div className="tactical-panel">
+            <div className="px-12 py-10">
+              <div className="text-label mb-4">ACTIVE STATIONS</div>
+              <div className="text-5xl font-mono text-data-bright tabular-nums">
+                {Object.keys(groupedAstronauts).length.toString().padStart(2, '0')}
+              </div>
+              <div className="text-xs text-gray-600 mt-3">ORBITAL PLATFORMS</div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Station Summary */}
+        <div className="flex flex-wrap justify-center gap-6">
+          {Object.entries(groupedAstronauts).map(([craft, astronauts]) => {
+            const info = stationInfo[craft as keyof typeof stationInfo];
+            return (
+              <div 
+                key={craft} 
+                className="tactical-panel flex items-center gap-6"
+              >
+                <div className="px-8 py-4 flex items-center gap-6">
+                  <span className="text-label">{info?.code || 'UNK'}</span>
+                  <span className="text-sm text-gray-300">{craft}</span>
+                  <span className="px-4 py-2 bg-expanse/20 text-expanse font-mono text-sm">{astronauts.length}</span>
                 </div>
-              );
-            })}
-          </div>
-          
-          <div className="flex flex-col items-center gap-4 sm:flex-row">
-            <RefreshButton
-              onRefresh={refetch}
-              isLoading={isLoading}
-              variant="secondary"
-              size="sm"
-              showStats={false}
-              lastUpdate={data.astronauts[0]?.lastUpdate}
-            />
-            
-            <RefreshStatus
-              isLoading={isLoading}
-              error={error}
-              lastUpdate={data.astronauts[0]?.lastUpdate}
-            />
-          </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Refresh Controls */}
+        <div className="flex justify-center">
+          <button
+            onClick={refetch}
+            disabled={isLoading}
+            className="btn-tactical px-10 py-3 text-sm"
+          >
+            REFRESH MANIFEST
+          </button>
         </div>
       </div>
       
-      <div className="space-y-12">
+      {/* Station Groups */}
+      <div className="space-y-12 mt-16">
         {Object.entries(groupedAstronauts).map(([craft, astronauts], index) => {
           const info = stationInfo[craft as keyof typeof stationInfo] || {
             name: craft,
-            icon: '🌌',
-            gradient: 'from-purple-500 to-pink-600',
-            borderColor: 'border-purple-500/30',
-            bgColor: 'bg-purple-950/20',
-            glowColor: 'rgba(147, 51, 234, 0.1)',
-            description: 'Spacecraft',
-            altitude: 'Unknown',
-            velocity: 'Unknown',
-            flag: '🌐',
-            agencies: 'Unknown'
+            code: 'UNK',
+            designation: 'UNKNOWN PLATFORM',
+            altitude: '---',
+            velocity: '---',
+            region: 'UNKNOWN',
+            agencies: 'UNSPECIFIED'
           };
 
           return (
             <React.Fragment key={craft}>
-              {/* Separator between stations */}
+              {/* Station separator */}
               {index > 0 && (
-                <div className="relative h-16 flex items-center justify-center my-8">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full h-px bg-gradient-to-r from-transparent via-cyan-800/30 to-transparent"></div>
-                  </div>
-                  <div className="relative bg-slate-950 px-4">
-                    <div className="w-1 h-1 bg-cyan-600/50 rounded-full"></div>
-                  </div>
+                <div className="flex items-center justify-center py-8">
+                  <div className="w-full h-px bg-gray-800"></div>
                 </div>
               )}
 
-              <div 
-                className={`station-group station-${craft.toLowerCase()} relative border ${info.borderColor} bg-gradient-to-b from-slate-900/30 to-slate-950/50 backdrop-blur-sm overflow-hidden transition-all duration-300`}
-                style={{
-                  '--station-color': craft === 'ISS' ? '#3b82f6' : '#ef4444',
-                  '--station-glow': info.glowColor
-                } as React.CSSProperties}
-              >
-                {/* Enhanced Station Header */}
-                <div className="station-header">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="relative">
-                        <div className="w-12 h-12 bg-slate-950/50 border border-cyan-800/30 flex items-center justify-center">
-                          <span className="text-sm font-light text-cyan-400">{info.code}</span>
-                        </div>
-                        <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-cyan-400/50"></div>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-light text-cyan-100 tracking-wide">
+              <div className="tactical-panel-alt">
+                {/* Station Header */}
+                <div className="px-12 py-10 border-b border-gray-800">
+                  <div className="flex items-center justify-between flex-wrap gap-6">
+                    <div className="flex items-center gap-8">
+                      <div className="flex flex-col">
+                        <h3 className="text-base font-tactical text-gray-200 uppercase tracking-wider">
                           {info.name}
                         </h3>
-                        <div className="text-xs text-cyan-700 font-light tracking-wider uppercase mt-1">{info.designation}</div>
+                        <div className="text-xs text-gray-500 mt-3">{info.designation} • {info.agencies}</div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs text-cyan-700 font-light uppercase tracking-wider">{info.region}</div>
-                      <div className="text-2xl font-light text-cyan-300 font-mono mt-1">{astronauts.length}</div>
+                      <div className="text-3xl font-mono text-expanse tabular-nums">
+                        {astronauts.length.toString().padStart(2, '0')}
+                      </div>
+                      <div className="text-xs text-gray-600 uppercase mt-2">CREW</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-6 mt-4 text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="text-cyan-700 uppercase">ALT</span>
-                      <span className="text-cyan-400 font-mono">{info.altitude}</span>
+                  <div className="flex items-center gap-10 mt-6 text-xs">
+                    <div className="flex items-center gap-4">
+                      <span className="text-gray-600">ALTITUDE:</span>
+                      <span className="font-mono text-gray-400">{info.altitude}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-cyan-700 uppercase">VEL</span>
-                      <span className="text-cyan-400 font-mono">{info.velocity}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-gray-600">VELOCITY:</span>
+                      <span className="font-mono text-gray-400">{info.velocity}</span>
                     </div>
-                    <div className="text-cyan-800 font-light">{info.agencies}</div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-gray-600">REGION:</span>
+                      <span className="text-gray-400">{info.region}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Astronaut Grid */}
-                <div className="grid gap-4 p-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {astronauts.map((astronaut) => (
-                    <Astronaut 
-                      key={astronaut.name} 
-                      astronaut={astronaut}
-                    />
-                  ))}
+                {/* Personnel Grid */}
+                <div className="p-12">
+                  <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {astronauts.map((astronaut) => (
+                      <Astronaut 
+                        key={astronaut.name} 
+                        astronaut={astronaut}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </React.Fragment>

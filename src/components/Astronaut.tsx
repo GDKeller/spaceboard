@@ -1,7 +1,6 @@
 import React from 'react';
 import { Astronaut as AstronautType } from '../types/space.types';
 import { useCachedImage } from '../hooks/useCachedImage';
-import MagicCard from './MagicCard';
 
 interface AstronautProps {
   astronaut: AstronautType;
@@ -12,29 +11,29 @@ const Astronaut: React.FC<AstronautProps> = ({ astronaut }) => {
     metadata: { astronautName: astronaut.name, type: 'profile' }
   });
 
-  const getStatusColor = (status?: string) => {
+  const getStatusClass = (status?: string) => {
     switch (status) {
-      case 'MAINTENANCE': return 'text-orange-400 bg-orange-400/20';
-      case 'COMMUNICATION': return 'text-blue-400 bg-blue-400/20';
-      case 'WORKING': return 'text-green-400 bg-green-400/20';
-      case 'REST': return 'text-purple-400 bg-purple-400/20';
-      default: return 'text-gray-400 bg-gray-400/20';
+      case 'MAINTENANCE': return 'text-caution';
+      case 'COMMUNICATION': return 'text-standby';
+      case 'WORKING': return 'text-nominal';
+      case 'REST': return 'text-offline';
+      default: return 'text-gray-500';
     }
   };
 
   return (
-    <MagicCard>
-      <div className="space-y-4">
-        {/* Header with photo and name */}
-        <div className="flex items-start gap-4">
-          {/* Profile Image */}
-          <div className="relative p-1 bg-gradient-to-br from-cyan-600/50 to-cyan-800/50">
-            <div className="relative bg-slate-950 p-0.5">
+    <div className="tactical-panel relative group">
+      <div className="p-6">
+        {/* Personnel ID Header */}
+        <div className="border-b border-gray-800 pb-4 mb-4">
+          <div className="flex items-start gap-4">
+            {/* Profile Image */}
+            <div className="relative w-14 h-14 bg-gray-900 border border-gray-700 overflow-hidden">
               {cachedImage.src && !cachedImage.error ? (
                 <img 
                   src={cachedImage.src} 
                   alt={astronaut.name}
-                  className="w-14 h-14 object-cover"
+                  className="w-full h-full object-cover opacity-80"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
@@ -42,67 +41,75 @@ const Astronaut: React.FC<AstronautProps> = ({ astronaut }) => {
                   }}
                 />
               ) : null}
-              <div className={`w-14 h-14 bg-gradient-to-br from-cyan-600 to-cyan-800 flex items-center justify-center text-white font-light text-sm ${astronaut.profileImageLink ? 'hidden' : ''}`}>
+              <div className={`w-full h-full bg-gray-800 flex items-center justify-center text-gray-500 font-mono text-xs ${astronaut.profileImageLink ? 'hidden' : ''}`}>
                 <span>{astronaut.name.split(' ').map(n => n[0]).join('')}</span>
               </div>
+              {/* Status LED */}
+              <div className="absolute bottom-0 right-0 p-1 bg-panel">
+                <span className="status-led bg-nominal animate-pulse"></span>
+              </div>
             </div>
-            {/* Status indicator dot */}
-            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-cyan-400 border border-slate-900"></div>
-          </div>
-          
-          {/* Name and info */}
-          <div className="flex-1">
-            <h3 className="text-base font-medium text-cyan-100 uppercase tracking-wider leading-tight">{astronaut.name}</h3>
-            <p className="text-xs text-cyan-600 mt-1 font-light">{astronaut.role || 'Astronaut'}</p>
-            <p className="text-xs text-gray-500 font-light">{astronaut.agency}</p>
+            
+            {/* Personnel Info */}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-xs font-tactical text-gray-200 uppercase tracking-wider truncate">
+                {astronaut.name}
+              </h3>
+              <div className="text-2xs text-gray-500 mt-2">
+                {astronaut.agency} • {astronaut.role || 'MISSION SPECIALIST'}
+              </div>
+            </div>
           </div>
         </div>
         
-        {/* Status Row */}
-        <div className="flex items-center gap-3">
-          <span className={`text-xs font-medium px-2.5 py-0.5 ${getStatusColor(astronaut.taskStatus)} uppercase tracking-wider`}>
-            {astronaut.taskStatus || 'WORKING'}
-          </span>
-          <div className="flex-1 h-px bg-cyan-800/20"></div>
+        {/* Status & Location */}
+        <div className="space-y-3 text-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600 uppercase">STATUS:</span>
+            <span className={`font-mono ${getStatusClass(astronaut.taskStatus)}`}>
+              {astronaut.taskStatus || 'NOMINAL'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600 uppercase">CRAFT:</span>
+            <span className="font-mono text-gray-400">
+              {astronaut.craft || astronaut.spaceCraft}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600 uppercase">MISSION DAY:</span>
+            <span className="font-mono text-gray-400">
+              {(astronaut.missionDay || 0).toString().padStart(3, '0')}
+            </span>
+          </div>
         </div>
         
-        {/* Info Grid */}
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="text-[10px] text-cyan-700 uppercase tracking-wider font-light mb-1">Location</div>
-              <div className="text-sm text-cyan-100 font-mono">{astronaut.craft || astronaut.spaceCraft}</div>
+        {/* Vitals Bar */}
+        <div className="mt-4 pt-4 border-t border-gray-800 grid grid-cols-3 gap-3 text-center">
+          <div>
+            <div className="text-2xs text-gray-600">O₂</div>
+            <div className="text-sm font-mono text-data mt-1">
+              {astronaut.vitals?.o2Sat || 98}%
             </div>
-            <div>
-              <div className="text-[10px] text-cyan-700 uppercase tracking-wider font-light mb-1">Mission Day</div>
-              <div className="text-sm text-cyan-100 font-mono">{astronaut.missionDay || 0}</div>
+          </div>
+          <div className="border-x border-gray-800">
+            <div className="text-2xs text-gray-600">BPM</div>
+            <div className="text-sm font-mono text-data mt-1">
+              {astronaut.vitals?.bpm || 72}
             </div>
           </div>
           <div>
-            <div className="text-[10px] text-cyan-700 uppercase tracking-wider font-light mb-1">Assignment</div>
-            <div className="text-sm text-cyan-100 font-light">{astronaut.agencyType || 'Government'}</div>
-          </div>
-        </div>
-        
-        {/* Stats Bar */}
-        <div className="bg-slate-950/50 -mx-6 -mb-6 px-6 py-4 mt-4">
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="text-[10px] text-cyan-700 uppercase tracking-wider font-light mb-1">O₂ SAT</div>
-              <div className="text-base font-mono text-cyan-300 font-light">{astronaut.vitals?.o2Sat || 98}%</div>
-            </div>
-            <div className="text-center border-x border-cyan-800/20">
-              <div className="text-[10px] text-cyan-700 uppercase tracking-wider font-light mb-1">BPM</div>
-              <div className="text-base font-mono text-cyan-300 font-light">{astronaut.vitals?.bpm || 72}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-[10px] text-cyan-700 uppercase tracking-wider font-light mb-1">TEMP</div>
-              <div className="text-base font-mono text-cyan-300 font-light">{astronaut.vitals?.temp || 36.8}°</div>
+            <div className="text-2xs text-gray-600">TEMP</div>
+            <div className="text-sm font-mono text-data mt-1">
+              {astronaut.vitals?.temp || 36.8}°
             </div>
           </div>
         </div>
       </div>
-    </MagicCard>
+      
+      {/* Corner accent */}
+      <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-expanse opacity-50"></div>
+    </div>
   );
 };
 

@@ -6,10 +6,12 @@ const ISSStatus: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-lg p-6 mb-8">
-        <div className="flex items-center gap-3">
-          <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-          <span className="text-gray-400">Loading ISS position...</span>
+      <div className="tactical-panel">
+        <div className="px-12 py-10">
+          <div className="flex items-center gap-4">
+            <span className="status-led bg-standby animate-pulse"></span>
+            <span className="text-sm text-gray-500 uppercase tracking-wider">ACQUIRING ISS TELEMETRY...</span>
+          </div>
         </div>
       </div>
     );
@@ -17,10 +19,12 @@ const ISSStatus: React.FC = () => {
 
   if (error) {
     return (
-      <div className="bg-red-900/20 backdrop-blur-sm border border-red-800 rounded-lg p-6 mb-8">
-        <div className="flex items-center gap-3">
-          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-          <span className="text-red-400">Unable to load ISS data</span>
+      <div className="tactical-panel alert-critical">
+        <div className="px-12 py-10">
+          <div className="flex items-center gap-4">
+            <span className="status-led bg-critical"></span>
+            <span className="text-sm uppercase tracking-wider">TELEMETRY LINK FAILURE</span>
+          </div>
         </div>
       </div>
     );
@@ -29,56 +33,89 @@ const ISSStatus: React.FC = () => {
   if (!data) return null;
 
   return (
-    <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-lg p-6 mb-8">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-        <span className="text-gray-300 font-medium">International Space Station</span>
-      </div>
-      
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="text-center">
-          <div className="text-2xl font-bold text-blue-400">
-            {Math.round(data.velocity).toLocaleString()}
+    <div className="tactical-panel">
+      <div className="relative">
+        {/* Header */}
+        <div className="px-12 py-8 border-b border-gray-800">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-8">
+              <h2 className="text-sm font-tactical uppercase tracking-wider text-gray-400">
+                ISS ZARYA • TRACKING STATION ALPHA
+              </h2>
+              <div className="flex items-center gap-4">
+                <span className="status-led bg-nominal animate-pulse"></span>
+                <span className="text-sm text-nominal">SIGNAL LOCK</span>
+              </div>
+            </div>
+            <span className="text-xs text-gray-600 font-mono">
+              NORAD: 25544
+            </span>
           </div>
-          <div className="text-sm text-gray-400">km/h</div>
-          <div className="text-xs text-gray-500">Velocity</div>
         </div>
         
-        <div className="text-center">
-          <div className="text-2xl font-bold text-purple-400">
-            {Math.round(data.altitude)}
+        {/* Telemetry Grid */}
+        <div className="p-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+            {/* Velocity */}
+            <div className="space-y-2">
+              <div className="text-label">VELOCITY</div>
+              <div className="text-3xl font-mono text-data-bright tabular-nums">
+                {Math.round(data.velocity).toLocaleString()}
+              </div>
+              <div className="text-xs text-gray-600">KM/H</div>
+            </div>
+            
+            {/* Altitude */}
+            <div className="space-y-2">
+              <div className="text-label">ALTITUDE</div>
+              <div className="text-3xl font-mono text-data-bright tabular-nums">
+                {Math.round(data.altitude)}
+              </div>
+              <div className="text-xs text-gray-600">KM ASL</div>
+            </div>
+            
+            {/* Footprint */}
+            <div className="space-y-2">
+              <div className="text-label">FOOTPRINT</div>
+              <div className="text-3xl font-mono text-data-bright tabular-nums">
+                {Math.round(data.footprint)}
+              </div>
+              <div className="text-xs text-gray-600">KM RADIUS</div>
+            </div>
+            
+            {/* Visibility */}
+            <div className="space-y-2">
+              <div className="text-label">VISIBILITY</div>
+              <div className="text-2xl font-mono uppercase">
+                <span className={`${data.visibility === 'daylight' ? 'text-caution' : 'text-standby'}`}>
+                  {data.visibility}
+                </span>
+              </div>
+              <div className="text-xs text-gray-600">SOLAR ANGLE</div>
+            </div>
           </div>
-          <div className="text-sm text-gray-400">km</div>
-          <div className="text-xs text-gray-500">Altitude</div>
+          
+          {/* Coordinates */}
+          <div className="mt-12 pt-8 border-t border-gray-800">
+            <div className="grid grid-cols-2 gap-10">
+              <div className="flex items-baseline gap-4">
+                <span className="text-label">LAT:</span>
+                <span className="font-mono text-xl text-data tabular-nums">
+                  {data.latitude >= 0 ? '+' : ''}{data.latitude.toFixed(4)}°
+                </span>
+              </div>
+              <div className="flex items-baseline gap-4">
+                <span className="text-label">LON:</span>
+                <span className="font-mono text-xl text-data tabular-nums">
+                  {data.longitude >= 0 ? '+' : ''}{data.longitude.toFixed(4)}°
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <div className="text-center">
-          <div className="text-2xl font-bold text-green-400">
-            {Math.round(data.footprint)}
-          </div>
-          <div className="text-sm text-gray-400">km</div>
-          <div className="text-xs text-gray-500">Footprint</div>
-        </div>
-        
-        <div className="text-center">
-          <div className="text-lg font-medium text-yellow-400 capitalize">
-            {data.visibility}
-          </div>
-          <div className="text-xs text-gray-500">Visibility</div>
-        </div>
-      </div>
-      
-      <div className="mt-4 pt-4 border-t border-gray-800">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="text-gray-400">Latitude:</span>
-            <span className="ml-2 text-gray-300">{data.latitude.toFixed(2)}°</span>
-          </div>
-          <div>
-            <span className="text-gray-400">Longitude:</span>
-            <span className="ml-2 text-gray-300">{data.longitude.toFixed(2)}°</span>
-          </div>
-        </div>
+        {/* Corner decorations */}
+        <div className="tactical-corners"></div>
       </div>
     </div>
   );

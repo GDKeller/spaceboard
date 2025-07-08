@@ -1,105 +1,216 @@
 @import "tailwindcss";
 
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  /* Space Theme Variables */
-  --color-bg-space: #0a0a0f;
-  --color-bg-panel: rgba(0, 0, 0, 0.8);
-  --color-text-primary: #ffffff;
-  --color-text-secondary: rgba(255, 255, 255, 0.7);
-  --color-primary: #00d4ff;
-  --color-success: #00ff88;
-  --color-warning: #ffaa00;
-  --color-danger: #ff3366;
+/* Expanse-inspired Tactical Design System */
+@theme {
+  /* Extend Tailwind's color palette with Expanse tactical colors */
+  --color-void: #030303;
+  --color-space: #0a0b0d;
+  --color-panel: #0d0f13;
+  --color-panel-light: #12151a;
   
-  /* Spacing */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --space-xl: 2rem;
+  /* Expanse signature blue */
+  --color-expanse: #0288d1;
+  --color-expanse-dark: #026aa7;
+  --color-expanse-darker: #014d7d;
+  --color-expanse-light: #289ed7;
+  --color-expanse-lighter: #5ab6e0;
   
-  /* Z-index layers */
-  --z-base: 1;
-  --z-dropdown: 10;
-  --z-modal: 100;
-  --z-tooltip: 1000;
+  /* Tactical status colors */
+  --color-nominal: #00c853;
+  --color-caution: #ff6f00;
+  --color-critical: #d50000;
+  --color-offline: #424242;
+  --color-standby: #0288d1;
+  
+  /* Data display colors */
+  --color-data: #64b5f6;
+  --color-data-dim: #42a5f5;
+  --color-data-bright: #90caf9;
+  
+  /* Override default grays with cooler tones */
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+  --color-gray-950: #020617;
+  
+  /* Extend font families */
+  --font-family-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Consolas', monospace;
+  --font-family-tactical: var(--font-family-mono);
+  
+  /* Fine-tune text sizes for tactical displays */
+  --font-size-2xs: 0.625rem;  /* 10px */
+  --font-size-xs: 0.6875rem;  /* 11px */
+  --font-size-sm: 0.75rem;    /* 12px */
+  --font-size-base: 0.875rem; /* 14px */
+  --font-size-lg: 1rem;       /* 16px */
+  
+  /* Letter spacing for data displays */
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-data: 0.025em;
+  --letter-spacing-label: 0.1em;
 }
 
-/* Global styles for tactical UI */
-* {
-  box-sizing: border-box;
-}
-
-/* Use monospace for all data displays */
-.font-mono {
-  font-family: 'Courier New', Courier, monospace;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: var(--color-bg-space);
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
+/* Global tactical styles */
+@layer base {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    color-scheme: dark;
   }
-  a:hover {
-    color: #747bff;
+
+  body {
+    @apply bg-black text-gray-200 font-mono text-sm;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
   }
-  button {
-    background-color: #f9f9f9;
+
+  /* Typography defaults */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-mono tracking-tight;
+  }
+
+  /* Remove spinner from number inputs */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
 }
+
+/* Tactical utility classes */
+@layer utilities {
+  /* Data typography */
+  .text-data {
+    @apply font-mono text-sm tracking-wide;
+  }
+  
+  .text-label {
+    @apply font-mono text-xs text-gray-500 uppercase tracking-widest;
+  }
+  
+  /* Status indicators */
+  .status-led {
+    @apply inline-block w-2 h-2 rounded-full;
+  }
+  
+  .status-nominal {
+    @apply text-green-500;
+  }
+  
+  .status-caution {
+    @apply text-orange-500;
+  }
+  
+  .status-critical {
+    @apply text-red-500;
+  }
+  
+  /* Tactical panels */
+  .tactical-panel {
+    @apply bg-gray-950 border border-gray-800 relative overflow-hidden rounded-sm;
+  }
+  
+  .tactical-panel-alt {
+    @apply bg-gray-900 border border-gray-800 relative overflow-hidden rounded-sm;
+  }
+  
+  /* HUD grid overlay */
+  .hud-grid {
+    @apply absolute inset-0 pointer-events-none opacity-10;
+    background-image: 
+      linear-gradient(to right, var(--color-expanse) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-expanse) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  /* Scan line effect */
+  .scan-line {
+    @apply absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-50;
+    animation: scan 4s ease-in-out infinite;
+  }
+  
+  @keyframes scan {
+    0%, 100% { transform: translateY(-100vh); }
+    50% { transform: translateY(100vh); }
+  }
+  
+  /* Corner brackets for tactical framing */
+  .tactical-corners {
+    @apply absolute inset-0 pointer-events-none;
+  }
+  
+  .tactical-corners::before,
+  .tactical-corners::after {
+    @apply absolute w-4 h-4 border-blue-500;
+    content: '';
+  }
+  
+  .tactical-corners::before {
+    @apply top-0 left-0 border-t-2 border-l-2;
+  }
+  
+  .tactical-corners::after {
+    @apply bottom-0 right-0 border-b-2 border-r-2;
+  }
+  
+  /* Data readout styles */
+  .data-readout {
+    @apply font-mono text-xs text-blue-400 tabular-nums;
+  }
+  
+  .data-label {
+    @apply text-xs text-gray-500 uppercase tracking-wider;
+  }
+  
+  /* Tactical button */
+  .btn-tactical {
+    @apply px-4 py-2 bg-transparent border border-gray-700 text-gray-300 
+           font-mono text-xs uppercase tracking-wider
+           hover:bg-gray-900 hover:border-blue-500 hover:text-blue-500
+           active:bg-blue-500 active:text-black
+           transition-all duration-150;
+  }
+  
+  /* Alert states */
+  .alert-nominal {
+    @apply border-green-500 text-green-500 bg-green-500/10;
+  }
+  
+  .alert-caution {
+    @apply border-orange-500 text-orange-500 bg-orange-500/10;
+  }
+  
+  .alert-critical {
+    @apply border-red-500 text-red-500 bg-red-500/10;
+  }
+  
+  /* Audio feedback classes for future sound integration */
+  .audio-beep {
+    /* Trigger short beep sound */
+  }
+  
+  .audio-alert {
+    /* Trigger alert sound */
+  }
+  
+  .audio-confirm {
+    /* Trigger confirmation sound */
+  }
+  
+  .audio-warning {
+    /* Trigger warning sound */
+  }
+  
+  .audio-critical {
+    /* Trigger critical alert sound */
+  }
+}
+
 

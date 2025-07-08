@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:server": "cd server && npm run dev",
-    "dev:all": "concurrently \"npm run dev\" \"npm run dev:server\"",
+    "dev:server": "cd server && npm run dev &",
+    "dev:all": "concurrently \"npm run dev &\" \"npm run dev:server\"",
+    "restart": "lsof -ti:3108 | xargs kill -9 && npm run dev &",
+    "restart:all": "lsof -ti:3108 | xargs kill -9 && lsof -ti:4108 | xargs kill -9 && npm run dev:all",
     "build": "tsc -b && vite build",
     "build:server": "cd server && npm run build",
     "build:all": "npm run build && npm run build:server",
