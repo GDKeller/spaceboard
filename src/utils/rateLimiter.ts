@@ -247,6 +247,22 @@ export class RateLimiter {
     console.log('[RateLimiter] Reset all rate limiting state');
   }
 
+  /**
+   * Clear persisted state from localStorage
+   * Useful for development or when rate limit issues persist
+   */
+  clearPersistedState(): void {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('rate_limit_state');
+        this.state.clear();
+        console.log('[RateLimiter] Cleared persisted rate limit state from localStorage');
+      }
+    } catch (error) {
+      console.error('[RateLimiter] Failed to clear persisted state:', error);
+    }
+  }
+
   private cleanup(): void {
     const now = Date.now();
     const staleThreshold = 24 * 60 * 60 * 1000; // 24 hours

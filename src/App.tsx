@@ -2,8 +2,36 @@ import './App.css'
 import { AstronautGrid } from './components/space'
 import ErrorBoundary from './components/ErrorBoundary'
 import ISSStatus from './components/ISSStatus'
+import { useEffect } from 'react'
+import { rateLimiter } from './utils/rateLimiter'
 
 function App() {
+  useEffect(() => {
+    // Clear stale rate limit state on app startup
+    // This helps prevent persistent rate limit errors after development restarts
+    const clearStaleRateLimitState = () => {
+      const state = rateLimiter.getStats();
+      const now = Date.now();
+      const staleThreshold = 2 * 60 * 60 * 1000; // 2 hours
+      
+      // Check if any endpoints have old backoff times
+      let hasStaleState = false;
+      for (const [endpoint, endpointState] of Object.entries(state)) {
+        if (endpointState.backoffUntil && (now - endpointState.backoffUntil) > staleThreshold) {
+          hasStaleState = true;
+          console.log(`[App] Found stale rate limit state for ${endpoint}`);
+          break;
+        }
+      }
+      
+      if (hasStaleState) {
+        console.log('[App] Clearing stale rate limit state...');
+        rateLimiter.clearPersistedState();
+      }
+    };
+    
+    clearStaleRateLimitState();
+  }, []);
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-void relative overflow-hidden p-8 lg:p-8">
@@ -39,6 +67,19 @@ function App() {
                   <span className="status-led bg-nominal animate-pulse"></span>
                   <span className="text-sm text-nominal uppercase tracking-wider">SYSTEMS NOMINAL</span>
                 </div>
+                {/* Development utility - remove in production */}
+                {process.env.NODE_ENV === 'development' && (
+                  <button
+                    onClick={() => {
+                      rateLimiter.clearPersistedState();
+                      window.location.reload();
+                    }}
+                    className="px-3 py-1 text-xs bg-expanse/20 hover:bg-expanse/30 text-expanse border border-expanse/50 rounded transition-colors"
+                    title="Clear rate limit state and reload"
+                  >
+                    CLEAR RATE LIMITS
+                  </button>
+                )}
               </div>
             </div>
           </div>
