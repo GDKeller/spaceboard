@@ -98,7 +98,7 @@ App (src/App.tsx)
 ## Current Development Status
 
 **Active Phase**: Planning complete, ready for Phase 0 implementation  
-**Next Action**: See NEXT_STEPS.md for immediate tasks  
+**Next Action**: See NEXT.md for immediate tasks and development roadmap  
 **Key Context**: Major API enhancement planned to add velocity, predictions, weather, and launch tracking
 
 ### Recent Accomplishments
