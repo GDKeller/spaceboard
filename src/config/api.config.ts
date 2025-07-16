@@ -1,7 +1,7 @@
 export const API_CONFIG = {
   // Use local server in development, production URL in production
   BASE_URL: import.meta.env.PROD 
-    ? import.meta.env.VITE_API_URL || 'https://api.spaceboard.app'
+    ? import.meta.env.VITE_API_URL || ''  // Empty string = same origin (Cloudflare Functions)
     : 'http://localhost:4108',
   
   // API endpoints
