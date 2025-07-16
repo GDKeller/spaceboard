@@ -35,3 +35,6 @@ public/cache/images/*
 
 # Serena configuration
 .serena/
+
+# Claude documentation
+.claudedocs/
